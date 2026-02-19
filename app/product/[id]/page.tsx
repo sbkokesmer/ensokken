@@ -1,29 +1,31 @@
-import { supabase } from "@/lib/supabase";
-import { Product } from "@/lib/types";
+import { products } from "@/lib/data";
 import ProductClient from "@/components/ProductClient";
-import Link from "next/link";
+import { notFound } from "next/navigation";
 
+// 1. Bu satır Netlify ve Static Export için KRİTİK
+export const dynamic = 'force-static';
+
+// 2. Build zamanında hangi ID'lerin oluşturulacağını belirler
 export async function generateStaticParams() {
-  const { data } = await supabase.from('products').select('id').eq('is_active', true);
-  return (data ?? []).map(p => ({ id: p.id }));
+  return products.map((product) => ({
+    id: product.id.toString(),
+  }));
 }
 
-export default async function ProductPage({ params }: { params: { id: string } }) {
-  const { data } = await supabase
-    .from('products')
-    .select('*, product_images(url, is_primary, sort_order), product_variants(id, color_hex, color_name, size, stock_quantity)')
-    .eq('id', params.id)
-    .eq('is_active', true)
-    .maybeSingle();
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
 
-  if (!data) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p className="text-zinc-500">Product niet gevonden.</p>
-        <Link href="/collection" className="text-sm text-black underline">Terug naar collectie</Link>
-      </div>
-    );
+// 3. Server Component (Veriyi bulur ve Client Component'e paslar)
+export default function ProductPage({ params }: PageProps) {
+  const id = Number(params.id);
+  const product = products.find((p) => p.id === id);
+
+  if (!product) {
+    notFound();
   }
 
-  return <ProductClient product={data as Product} />;
+  return <ProductClient product={product} />;
 }

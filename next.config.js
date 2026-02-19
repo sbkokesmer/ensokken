@@ -1,6 +1,11 @@
 const nextConfig = {
   reactStrictMode: true,
 
+  output: 'export',
+
+  // 🔑 BU SATIR HER ŞEYİ DÜZELTİR
+  trailingSlash: true,
+
   swcMinify: false,
 
   eslint: {
