@@ -87,7 +87,7 @@ export default function AdminCategories() {
         action={
           <button
             onClick={() => setShowAdd(true)}
-            className="flex items-center gap-2 h-9 px-4 bg-[#f24f13] text-white rounded-xl text-sm font-medium hover:bg-[#e04410] transition-colors"
+            className="flex items-center gap-2 h-9 px-4 bg-white text-black rounded-xl text-sm font-medium hover:bg-white/90 transition-colors"
           >
             <Plus width={15} height={15} />
             Nieuwe categorie
@@ -97,27 +97,27 @@ export default function AdminCategories() {
 
       <div className="p-8 flex flex-col gap-5">
         {showAdd && (
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-5">
+          <div className="bg-[#161616] border border-white/[0.08] rounded-2xl p-5">
             <p className="text-white font-semibold text-sm mb-4">Nieuwe categorie</p>
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
                 <label className="block text-xs text-white/40 mb-1.5">Naam *</label>
                 <input value={newName} onChange={(e) => { setNewName(e.target.value); setNewSlug(slugify(e.target.value)); }}
                   placeholder="Heren"
-                  className="w-full h-10 px-3 bg-[#0f0f0f] border border-white/5 rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
+                  className="w-full h-10 px-3 bg-[#0d0d0d] border border-white/[0.05] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
               </div>
               <div>
                 <label className="block text-xs text-white/40 mb-1.5">Slug</label>
                 <input value={newSlug} onChange={(e) => setNewSlug(e.target.value)}
                   placeholder="heren"
-                  className="w-full h-10 px-3 bg-[#0f0f0f] border border-white/5 rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors font-mono" />
+                  className="w-full h-10 px-3 bg-[#0d0d0d] border border-white/[0.05] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors font-mono" />
               </div>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setShowAdd(false)} className="flex items-center gap-1.5 h-9 px-4 bg-white/5 text-white/50 rounded-xl text-sm hover:bg-white/8 hover:text-white transition-colors">
                 <X width={14} height={14} /> Annuleren
               </button>
-              <button onClick={handleAdd} disabled={saving || !newName.trim()} className="flex items-center gap-1.5 h-9 px-4 bg-[#f24f13] text-white rounded-xl text-sm font-medium hover:bg-[#e04410] transition-colors disabled:opacity-50">
+              <button onClick={handleAdd} disabled={saving || !newName.trim()} className="flex items-center gap-1.5 h-9 px-4 bg-white text-black rounded-xl text-sm font-medium hover:bg-white/90 transition-colors disabled:opacity-50">
                 {saving ? <Loader2 width={14} height={14} className="animate-spin" /> : <Check width={14} height={14} />}
                 Toevoegen
               </button>
@@ -125,7 +125,7 @@ export default function AdminCategories() {
           </div>
         )}
 
-        <div className="bg-[#1a1a1a] border border-white/5 rounded-2xl overflow-hidden">
+        <div className="bg-[#161616] border border-white/[0.06] rounded-2xl overflow-hidden">
           {loading ? (
             <div className="p-12 flex items-center justify-center gap-2 text-white/30 text-sm">
               <Loader2 width={16} height={16} className="animate-spin" /> Laden...
@@ -135,7 +135,7 @@ export default function AdminCategories() {
           ) : (
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/5">
+                <tr className="border-b border-white/[0.05]">
                   <th className="text-left px-5 py-3 text-white/30 text-xs font-medium">Naam</th>
                   <th className="text-left px-5 py-3 text-white/30 text-xs font-medium">Slug</th>
                   <th className="text-left px-5 py-3 text-white/30 text-xs font-medium">Producten</th>
@@ -145,11 +145,11 @@ export default function AdminCategories() {
               </thead>
               <tbody>
                 {categories.map((c) => (
-                  <tr key={c.id} className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
+                  <tr key={c.id} className="border-b border-white/[0.05] last:border-0 hover:bg-white/2 transition-colors">
                     <td className="px-5 py-3">
                       {editingId === c.id ? (
                         <input value={editName} onChange={(e) => { setEditName(e.target.value); setEditSlug(slugify(e.target.value)); }}
-                          className="h-8 px-3 bg-[#0f0f0f] border border-white/10 rounded-lg text-white text-sm focus:outline-none w-36" />
+                          className="h-8 px-3 bg-[#0d0d0d] border border-white/10 rounded-lg text-white text-sm focus:outline-none w-36" />
                       ) : (
                         <span className="text-white text-sm font-medium">{c.name}</span>
                       )}
@@ -157,7 +157,7 @@ export default function AdminCategories() {
                     <td className="px-5 py-3">
                       {editingId === c.id ? (
                         <input value={editSlug} onChange={(e) => setEditSlug(e.target.value)}
-                          className="h-8 px-3 bg-[#0f0f0f] border border-white/10 rounded-lg text-white text-sm font-mono focus:outline-none w-36" />
+                          className="h-8 px-3 bg-[#0d0d0d] border border-white/10 rounded-lg text-white text-sm font-mono focus:outline-none w-36" />
                       ) : (
                         <span className="text-white/40 text-xs font-mono">{c.slug}</span>
                       )}

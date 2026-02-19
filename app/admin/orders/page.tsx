@@ -106,7 +106,7 @@ export default function AdminOrders() {
           })}
         </div>
 
-        <div className="bg-[#1a1a1a] border border-white/5 rounded-2xl overflow-hidden">
+        <div className="bg-[#161616] border border-white/[0.06] rounded-2xl overflow-hidden">
           {loading ? (
             <div className="p-12 flex items-center justify-center gap-2 text-white/30 text-sm">
               <Loader2 width={16} height={16} className="animate-spin" /> Laden...
@@ -116,7 +116,7 @@ export default function AdminOrders() {
           ) : (
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/5">
+                <tr className="border-b border-white/[0.05]">
                   <th className="text-left px-5 py-3 text-white/30 text-xs font-medium">Bestelling</th>
                   <th className="text-left px-5 py-3 text-white/30 text-xs font-medium">Klant</th>
                   <th className="text-left px-5 py-3 text-white/30 text-xs font-medium">Totaal</th>
@@ -127,7 +127,7 @@ export default function AdminOrders() {
               </thead>
               <tbody>
                 {filtered.map((o) => (
-                  <tr key={o.id} className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
+                  <tr key={o.id} className="border-b border-white/[0.05] last:border-0 hover:bg-white/2 transition-colors">
                     <td className="px-5 py-3 text-white text-sm font-medium">{o.order_number}</td>
                     <td className="px-5 py-3">
                       <p className="text-white/70 text-sm">{o.profiles?.full_name || "Gast"}</p>
@@ -161,8 +161,8 @@ export default function AdminOrders() {
       {selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedOrder(null)} />
-          <div className="relative bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl">
-            <div className="sticky top-0 bg-[#1a1a1a] border-b border-white/5 px-6 py-4 flex items-center justify-between z-10">
+          <div className="relative bg-[#161616] border border-white/[0.08] rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl">
+            <div className="sticky top-0 bg-[#1a1a1a] border-b border-white/[0.05] px-6 py-4 flex items-center justify-between z-10">
               <div>
                 <h2 className="text-white font-semibold text-base">{selectedOrder.order_number}</h2>
                 <p className="text-white/30 text-xs mt-0.5">{formatDate(selectedOrder.created_at)}</p>
@@ -191,7 +191,7 @@ export default function AdminOrders() {
                   <p className="text-white/30 text-xs font-medium uppercase tracking-wider mb-3">Bestelde producten</p>
                   <div className="flex flex-col gap-2">
                     {selectedOrder.order_items.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between bg-[#0f0f0f] rounded-xl px-4 py-3">
+                      <div key={item.id} className="flex items-center justify-between bg-[#0d0d0d] rounded-xl px-4 py-3">
                         <div>
                           <p className="text-white text-sm font-medium">{item.product_name}</p>
                           <p className="text-white/40 text-xs">{item.color_name} — {item.size} — ×{item.quantity}</p>
@@ -203,7 +203,7 @@ export default function AdminOrders() {
                 </div>
               )}
 
-              <div className="bg-[#0f0f0f] rounded-xl p-4">
+              <div className="bg-[#0d0d0d] rounded-xl p-4">
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-white/50">Subtotaal</span>
                   <span className="text-white">€{Number(selectedOrder.subtotal).toFixed(2)}</span>
@@ -214,14 +214,14 @@ export default function AdminOrders() {
                 </div>
                 <div className="flex justify-between text-sm font-semibold border-t border-white/10 pt-3">
                   <span className="text-white">Totaal</span>
-                  <span className="text-[#f24f13]">€{Number(selectedOrder.total).toFixed(2)}</span>
+                  <span className="text-white">€{Number(selectedOrder.total).toFixed(2)}</span>
                 </div>
               </div>
 
               {Object.keys(selectedOrder.shipping_address).length > 0 && (
                 <div>
                   <p className="text-white/30 text-xs font-medium uppercase tracking-wider mb-2">Leveringsadres</p>
-                  <div className="bg-[#0f0f0f] rounded-xl px-4 py-3">
+                  <div className="bg-[#0d0d0d] rounded-xl px-4 py-3">
                     {Object.entries(selectedOrder.shipping_address).map(([k, v]) => (
                       <p key={k} className="text-white/60 text-sm">{v}</p>
                     ))}
@@ -240,7 +240,7 @@ export default function AdminOrders() {
                       className={`h-9 rounded-xl text-xs font-medium transition-colors border ${
                         selectedOrder.status === s
                           ? `${statusColors[s]} cursor-default`
-                          : "bg-white/5 border-white/5 text-white/40 hover:text-white hover:bg-white/10"
+                          : "bg-white/5 border-white/[0.05] text-white/40 hover:text-white hover:bg-white/10"
                       } disabled:opacity-50`}
                     >
                       {statusLabels[s]}

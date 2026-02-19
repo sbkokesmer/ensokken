@@ -20,8 +20,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0d0d0d]">
-        <Loader2 className="animate-spin text-white/30" width={32} height={32} />
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+        <Loader2 className="animate-spin text-white/20" width={28} height={28} />
       </div>
     );
   }

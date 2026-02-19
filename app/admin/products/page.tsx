@@ -153,7 +153,7 @@ export default function AdminProducts() {
         action={
           <button
             onClick={openAdd}
-            className="flex items-center gap-2 h-9 px-4 bg-[#f24f13] text-white rounded-xl text-sm font-medium hover:bg-[#e04410] transition-colors"
+            className="flex items-center gap-2 h-9 px-4 bg-white text-black rounded-xl text-sm font-medium hover:bg-white/90 transition-colors"
           >
             <Plus width={15} height={15} />
             Nieuw product
@@ -169,11 +169,11 @@ export default function AdminProducts() {
             placeholder="Zoeken op naam of SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-10 pl-10 pr-4 bg-[#1a1a1a] border border-white/5 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-white/15 transition-colors"
+            className="w-full h-10 pl-10 pr-4 bg-[#161616] border border-white/[0.06] rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-white/15 transition-colors"
           />
         </div>
 
-        <div className="bg-[#1a1a1a] border border-white/5 rounded-2xl overflow-hidden">
+        <div className="bg-[#161616] border border-white/[0.06] rounded-2xl overflow-hidden">
           {loading ? (
             <div className="p-12 text-center text-white/30 text-sm flex items-center justify-center gap-2">
               <Loader2 width={16} height={16} className="animate-spin" /> Laden...
@@ -204,7 +204,7 @@ export default function AdminProducts() {
                         )}
                         <div>
                           <p className="text-white text-sm font-medium">{p.name}</p>
-                          {p.badge && <span className="text-[10px] text-[#f24f13] font-medium">{p.badge}</span>}
+                          {p.badge && <span className="text-[10px] text-white/50 font-medium">{p.badge}</span>}
                         </div>
                       </div>
                     </td>
@@ -241,7 +241,7 @@ export default function AdminProducts() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-          <div className="relative bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+          <div className="relative bg-[#161616] border border-white/[0.08] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="sticky top-0 bg-[#1a1a1a] border-b border-white/5 px-6 py-4 flex items-center justify-between z-10">
               <h2 className="text-white font-semibold text-base">{editId ? "Product bewerken" : "Nieuw product"}</h2>
               <button onClick={() => setShowModal(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 text-white/40 hover:text-white transition-colors">
@@ -255,13 +255,13 @@ export default function AdminProducts() {
                   <label className="block text-xs font-medium text-white/40 mb-1.5">SKU *</label>
                   <input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })}
                     placeholder="ENS-WHITE-001"
-                    className="w-full h-10 px-3 bg-[#0f0f0f] border border-white/5 rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
+                    className="w-full h-10 px-3 bg-[#0d0d0d] border border-white/[0.06] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-white/40 mb-1.5">Naam *</label>
                   <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                     placeholder="Essential White"
-                    className="w-full h-10 px-3 bg-[#0f0f0f] border border-white/5 rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
+                    className="w-full h-10 px-3 bg-[#0d0d0d] border border-white/[0.06] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
                 </div>
               </div>
 
@@ -270,13 +270,13 @@ export default function AdminProducts() {
                   <label className="block text-xs font-medium text-white/40 mb-1.5">Prijs (€) *</label>
                   <input type="number" step="0.01" min="0" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })}
                     placeholder="26.00"
-                    className="w-full h-10 px-3 bg-[#0f0f0f] border border-white/5 rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
+                    className="w-full h-10 px-3 bg-[#0d0d0d] border border-white/[0.06] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-white/40 mb-1.5">Badge</label>
                   <input value={form.badge} onChange={(e) => setForm({ ...form, badge: e.target.value })}
                     placeholder="Best Seller / Nieuw"
-                    className="w-full h-10 px-3 bg-[#0f0f0f] border border-white/5 rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
+                    className="w-full h-10 px-3 bg-[#0d0d0d] border border-white/[0.06] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
                 </div>
               </div>
 
@@ -284,7 +284,7 @@ export default function AdminProducts() {
                 <div>
                   <label className="block text-xs font-medium text-white/40 mb-1.5">Categorie</label>
                   <select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}
-                    className="w-full h-10 px-3 bg-[#0f0f0f] border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-white/15 transition-colors appearance-none">
+                    className="w-full h-10 px-3 bg-[#0d0d0d] border border-white/[0.06] rounded-xl text-white text-sm focus:outline-none focus:border-white/15 transition-colors appearance-none">
                     <option value="">Geen categorie</option>
                     {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
@@ -292,7 +292,7 @@ export default function AdminProducts() {
                 <div>
                   <label className="block text-xs font-medium text-white/40 mb-1.5">Status</label>
                   <select value={form.is_active ? "true" : "false"} onChange={(e) => setForm({ ...form, is_active: e.target.value === "true" })}
-                    className="w-full h-10 px-3 bg-[#0f0f0f] border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-white/15 transition-colors appearance-none">
+                    className="w-full h-10 px-3 bg-[#0d0d0d] border border-white/[0.06] rounded-xl text-white text-sm focus:outline-none focus:border-white/15 transition-colors appearance-none">
                     <option value="true">Actief</option>
                     <option value="false">Inactief</option>
                   </select>
@@ -303,7 +303,7 @@ export default function AdminProducts() {
                 <label className="block text-xs font-medium text-white/40 mb-1.5">Beschrijving</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={3} placeholder="Productbeschrijving..."
-                  className="w-full px-3 py-2.5 bg-[#0f0f0f] border border-white/5 rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors resize-none" />
+                  className="w-full px-3 py-2.5 bg-[#0d0d0d] border border-white/[0.06] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors resize-none" />
               </div>
 
               <div>
@@ -316,7 +316,7 @@ export default function AdminProducts() {
                         const imgs = [...form.images]; imgs[i] = e.target.value; setForm({ ...form, images: imgs });
                       }}
                         placeholder={i === 0 ? "Hoofdafbeelding URL" : `Afbeelding ${i + 1} URL`}
-                        className="flex-1 h-9 px-3 bg-[#0f0f0f] border border-white/5 rounded-xl text-white text-xs placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
+                        className="flex-1 h-9 px-3 bg-[#0d0d0d] border border-white/[0.06] rounded-xl text-white text-xs placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
                       {url && <img src={url} className="w-9 h-9 rounded-lg object-cover bg-white/5" onError={(e) => (e.currentTarget.style.display = "none")} />}
                     </div>
                   ))}
@@ -331,18 +331,18 @@ export default function AdminProducts() {
                       <div key={i} className="grid grid-cols-4 gap-2 items-center">
                         <input value={v.color_hex} onChange={(e) => {
                           const vs = [...form.variants]; vs[i] = { ...vs[i], color_hex: e.target.value }; setForm({ ...form, variants: vs });
-                        }} placeholder="#f0f0f0" className="h-8 px-2 bg-[#0f0f0f] border border-white/5 rounded-lg text-white text-xs placeholder:text-white/20 focus:outline-none font-mono" />
+                        }} placeholder="#f0f0f0" className="h-8 px-2 bg-[#0d0d0d] border border-white/[0.06] rounded-lg text-white text-xs placeholder:text-white/20 focus:outline-none font-mono" />
                         <input value={v.color_name} onChange={(e) => {
                           const vs = [...form.variants]; vs[i] = { ...vs[i], color_name: e.target.value }; setForm({ ...form, variants: vs });
-                        }} placeholder="Crème" className="h-8 px-2 bg-[#0f0f0f] border border-white/5 rounded-lg text-white text-xs placeholder:text-white/20 focus:outline-none" />
+                        }} placeholder="Crème" className="h-8 px-2 bg-[#0d0d0d] border border-white/[0.06] rounded-lg text-white text-xs placeholder:text-white/20 focus:outline-none" />
                         <select value={v.size} onChange={(e) => {
                           const vs = [...form.variants]; vs[i] = { ...vs[i], size: e.target.value }; setForm({ ...form, variants: vs });
-                        }} className="h-8 px-2 bg-[#0f0f0f] border border-white/5 rounded-lg text-white text-xs focus:outline-none appearance-none">
+                        }} className="h-8 px-2 bg-[#0d0d0d] border border-white/[0.06] rounded-lg text-white text-xs focus:outline-none appearance-none">
                           <option>36-39</option><option>40-43</option><option>44-46</option>
                         </select>
                         <input type="number" min="0" value={v.stock_quantity} onChange={(e) => {
                           const vs = [...form.variants]; vs[i] = { ...vs[i], stock_quantity: parseInt(e.target.value) || 0 }; setForm({ ...form, variants: vs });
-                        }} placeholder="Voorraad" className="h-8 px-2 bg-[#0f0f0f] border border-white/5 rounded-lg text-white text-xs placeholder:text-white/20 focus:outline-none" />
+                        }} placeholder="Voorraad" className="h-8 px-2 bg-[#0d0d0d] border border-white/[0.06] rounded-lg text-white text-xs placeholder:text-white/20 focus:outline-none" />
                       </div>
                     ))}
                     <button type="button" onClick={() => setForm({ ...form, variants: [...form.variants, { color_hex: "#f0f0f0", color_name: "Crème", size: "40-43", stock_quantity: 0 }] })}
@@ -359,7 +359,7 @@ export default function AdminProducts() {
                 <button onClick={() => setShowModal(false)} className="flex-1 h-10 bg-white/5 text-white/60 rounded-xl text-sm hover:bg-white/10 hover:text-white transition-colors">
                   Annuleren
                 </button>
-                <button onClick={handleSave} disabled={saving} className="flex-1 h-10 bg-[#f24f13] text-white rounded-xl text-sm font-medium hover:bg-[#e04410] transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
+                <button onClick={handleSave} disabled={saving} className="flex-1 h-10 bg-white text-black rounded-xl text-sm font-medium hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
                   {saving && <Loader2 width={14} height={14} className="animate-spin" />}
                   {editId ? "Bijwerken" : "Toevoegen"}
                 </button>
