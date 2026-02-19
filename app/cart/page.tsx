@@ -75,7 +75,7 @@ export default function CartPage() {
                           <h3 className="font-semibold text-lg text-black mb-1">{item.name}</h3>
                           <p className="text-sm text-zinc-500">{item.selectedSize}</p>
                         </div>
-                        <span className="font-bold text-xl text-black">€{(item.priceValue * item.quantity).toFixed(2)}</span>
+                        <span className="font-bold text-xl text-black">€{(item.price * item.quantity).toFixed(2)}</span>
                       </div>
                       
                       <div className="flex justify-between items-end">
@@ -95,7 +95,7 @@ export default function CartPage() {
                           </button>
                         </div>
                         {/* Unit Price Display */}
-                        <span className="text-sm text-zinc-400">Stukprijs: €{item.priceValue.toFixed(2)}</span>
+                        <span className="text-sm text-zinc-400">Stukprijs: €{item.price.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

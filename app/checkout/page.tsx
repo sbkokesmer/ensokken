@@ -278,7 +278,7 @@ export default function CheckoutPage() {
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium truncate">{item.name}</h4>
                     <p className="text-xs text-zinc-500">{item.selectedSize} - {item.quantity} Stuks</p>
-                    <p className="text-sm font-semibold mt-1">€{(item.priceValue * item.quantity).toFixed(2)}</p>
+                    <p className="text-sm font-semibold mt-1">€{(item.price * item.quantity).toFixed(2)}</p>
                   </div>
                 </div>
               ))}

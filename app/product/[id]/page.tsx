@@ -1,15 +1,15 @@
-import { products } from "@/lib/data";
+import { supabase } from "@/lib/supabase";
 import ProductClient from "@/components/ProductClient";
 import { notFound } from "next/navigation";
 
-// 1. Bu satır Netlify ve Static Export için KRİTİK
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
 
-// 2. Build zamanında hangi ID'lerin oluşturulacağını belirler
 export async function generateStaticParams() {
-  return products.map((product) => ({
-    id: product.id.toString(),
-  }));
+  const { data } = await supabase
+    .from("products")
+    .select("id")
+    .eq("is_active", true);
+  return (data ?? []).map((p) => ({ id: p.id }));
 }
 
 interface PageProps {
@@ -18,10 +18,13 @@ interface PageProps {
   };
 }
 
-// 3. Server Component (Veriyi bulur ve Client Component'e paslar)
-export default function ProductPage({ params }: PageProps) {
-  const id = Number(params.id);
-  const product = products.find((p) => p.id === id);
+export default async function ProductPage({ params }: PageProps) {
+  const { data: product } = await supabase
+    .from("products")
+    .select("*, product_images(url, is_primary, sort_order), product_variants(id, color_hex, color_name, size, stock_quantity)")
+    .eq("id", params.id)
+    .eq("is_active", true)
+    .maybeSingle();
 
   if (!product) {
     notFound();

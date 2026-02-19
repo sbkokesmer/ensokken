@@ -1,12 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, products } from '@/lib/data';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { Product } from "@/lib/types";
 
 interface FavoritesContextType {
-  favorites: number[]; // Store Product IDs
-  toggleFavorite: (productId: number) => void;
-  isFavorite: (productId: number) => boolean;
+  favorites: string[];
+  toggleFavorite: (productId: string) => void;
+  isFavorite: (productId: string) => boolean;
   favoriteCount: number;
   favoriteProducts: Product[];
 }
@@ -14,51 +15,64 @@ interface FavoritesContextType {
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load from LocalStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('ensokken_favorites');
+    const saved = localStorage.getItem("ensokken_favorites");
     if (saved) {
       try {
         setFavorites(JSON.parse(saved));
       } catch (e) {
-        console.error("Favoriler yüklenirken hata oluştu", e);
+        // ignore
       }
     }
     setIsLoaded(true);
   }, []);
 
-  // Save to LocalStorage on change
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem('ensokken_favorites', JSON.stringify(favorites));
+      localStorage.setItem("ensokken_favorites", JSON.stringify(favorites));
     }
   }, [favorites, isLoaded]);
 
-  const toggleFavorite = (productId: number) => {
-    setFavorites(prev => {
+  useEffect(() => {
+    if (favorites.length === 0) {
+      setFavoriteProducts([]);
+      return;
+    }
+    supabase
+      .from("products")
+      .select("*, product_images(url, is_primary, sort_order), product_variants(id, color_hex, color_name, size, stock_quantity)")
+      .in("id", favorites)
+      .then(({ data }) => {
+        setFavoriteProducts(data ?? []);
+      });
+  }, [favorites]);
+
+  const toggleFavorite = (productId: string) => {
+    setFavorites((prev) => {
       if (prev.includes(productId)) {
-        return prev.filter(id => id !== productId);
+        return prev.filter((id) => id !== productId);
       } else {
         return [...prev, productId];
       }
     });
   };
 
-  const isFavorite = (productId: number) => favorites.includes(productId);
-
-  const favoriteProducts = products.filter(p => favorites.includes(p.id));
+  const isFavorite = (productId: string) => favorites.includes(productId);
 
   return (
-    <FavoritesContext.Provider value={{ 
-      favorites, 
-      toggleFavorite, 
-      isFavorite, 
-      favoriteCount: favorites.length,
-      favoriteProducts
-    }}>
+    <FavoritesContext.Provider
+      value={{
+        favorites,
+        toggleFavorite,
+        isFavorite,
+        favoriteCount: favorites.length,
+        favoriteProducts,
+      }}
+    >
       {children}
     </FavoritesContext.Provider>
   );
@@ -67,7 +81,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
 export function useFavorites() {
   const context = useContext(FavoritesContext);
   if (context === undefined) {
-    throw new Error('useFavorites must be used within a FavoritesProvider');
+    throw new Error("useFavorites must be used within a FavoritesProvider");
   }
   return context;
 }

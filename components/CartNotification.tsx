@@ -1,7 +1,6 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { getColorName } from "@/lib/data";
 import { Check, X, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -88,7 +87,7 @@ export default function CartNotification() {
                 <span className="w-1 h-1 rounded-full bg-zinc-300"></span>
                 <span className="font-medium text-zinc-700">{getDutchColorName(item.selectedColor)}</span>
               </p>
-              <p className="text-black font-medium text-sm mt-1.5">{item.price}</p>
+              <p className="text-black font-medium text-sm mt-1.5">€{item.price.toFixed(2)}</p>
             </div>
           </div>
 
