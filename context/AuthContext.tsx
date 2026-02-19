@@ -44,10 +44,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAdmin = profile?.is_admin === true;
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) await fetchProfile(session.user.id);
       setLoading(false);
     });
 
@@ -59,11 +59,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const p = await fetchProfile(session.user.id);
           if (event === "SIGNED_IN" && p?.is_admin) {
             router.push("/admin");
+          } else if (event === "SIGNED_IN" && !p?.is_admin) {
+            setLoading(false);
           }
         } else {
           setProfile(null);
+          setLoading(false);
         }
-        setLoading(false);
       })();
     });
   }, []);

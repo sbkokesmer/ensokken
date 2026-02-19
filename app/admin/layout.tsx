@@ -10,7 +10,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
+    if (!loading && user && !isAdmin) {
+      router.push("/");
+    }
+    if (!loading && !user) {
       router.push("/");
     }
   }, [user, isAdmin, loading, router]);
