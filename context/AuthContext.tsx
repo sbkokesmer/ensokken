@@ -10,7 +10,6 @@ interface Profile {
   email: string;
   phone: string;
   avatar_url: string;
-  is_admin: boolean;
 }
 
 interface AuthContextType {
@@ -37,17 +36,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const router = useRouter();
-
-  const isAdmin = profile?.is_admin === true;
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) await fetchProfile(session.user.id);
+      if (session?.user) {
+        await fetchProfile(session.user.id);
+        const admin = await checkAdmin(session.user.email ?? "");
+        setIsAdmin(admin);
+      }
       setLoading(false);
     });
 
@@ -56,19 +58,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          const p = await fetchProfile(session.user.id);
-          if (event === "SIGNED_IN" && p?.is_admin) {
+          await fetchProfile(session.user.id);
+          const admin = await checkAdmin(session.user.email ?? "");
+          setIsAdmin(admin);
+          if (event === "SIGNED_IN" && admin) {
             router.push("/admin");
-          } else if (event === "SIGNED_IN" && !p?.is_admin) {
+          } else if (event === "SIGNED_IN" && !admin) {
             setLoading(false);
           }
         } else {
           setProfile(null);
+          setIsAdmin(false);
           setLoading(false);
         }
       })();
     });
   }, []);
+
+  async function checkAdmin(email: string): Promise<boolean> {
+    if (!email) return false;
+    const { data } = await supabase
+      .from("admins")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
+    return !!data;
+  }
 
   async function fetchProfile(userId: string): Promise<Profile | null> {
     const { data } = await supabase
