@@ -1,30 +1,48 @@
-import { products } from "@/lib/data";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { Product } from "@/lib/types";
 import ProductClient from "@/components/ProductClient";
-import { notFound } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
-// 1. Bu satır Netlify ve Static Export için KRİTİK
-export const dynamic = 'force-static';
+export default function ProductPage() {
+  const params = useParams();
+  const id = params?.id as string;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
 
-// 2. Build zamanında hangi ID'lerin oluşturulacağını belirler
-export async function generateStaticParams() {
-  return products.map((product) => ({
-    id: product.id.toString(),
-  }));
-}
+  useEffect(() => {
+    if (!id) return;
+    (async () => {
+      const { data } = await supabase
+        .from('products')
+        .select('*, product_images(url, is_primary, sort_order), product_variants(id, color_hex, color_name, size, stock_quantity)')
+        .eq('id', id)
+        .eq('is_active', true)
+        .maybeSingle();
+      setProduct((data as Product) ?? null);
+      setLoading(false);
+    })();
+  }, [id]);
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-// 3. Server Component (Veriyi bulur ve Client Component'e paslar)
-export default function ProductPage({ params }: PageProps) {
-  const id = Number(params.id);
-  const product = products.find((p) => p.id === id);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 width={32} height={32} className="animate-spin text-zinc-300" />
+      </div>
+    );
+  }
 
   if (!product) {
-    notFound();
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <p className="text-zinc-500">Product niet gevonden.</p>
+        <Link href="/collection" className="text-sm text-black underline">Terug naar collectie</Link>
+      </div>
+    );
   }
 
   return <ProductClient product={product} />;
