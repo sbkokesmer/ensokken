@@ -63,7 +63,9 @@ export default function AuthModal() {
     if (msg.includes("Email already registered") || msg.includes("already been registered")) return "Dit e-mailadres is al geregistreerd.";
     if (msg.includes("Password should be at least")) return "Wachtwoord moet minimaal 6 tekens bevatten.";
     if (msg.includes("Unable to validate email")) return "Ongeldig e-mailadres.";
-    return "Er is iets misgegaan. Probeer het opnieuw.";
+    if (msg.includes("Email not confirmed")) return "E-mailadres is niet bevestigd.";
+    if (msg.includes("Too many requests")) return "Te veel pogingen. Wacht even en probeer opnieuw.";
+    return `Er is iets misgegaan: ${msg}`;
   }
 
   if (!isAuthOpen) return null;
