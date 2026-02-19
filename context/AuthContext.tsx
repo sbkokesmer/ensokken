@@ -61,10 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await fetchProfile(session.user.id);
           const admin = await checkAdmin(session.user.email ?? "");
           setIsAdmin(admin);
+          setLoading(false);
           if (event === "SIGNED_IN" && admin) {
             router.push("/admin");
-          } else if (event === "SIGNED_IN" && !admin) {
-            setLoading(false);
           }
         } else {
           setProfile(null);

@@ -2,12 +2,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { User, Package, MapPin, LogOut, Save, Loader2, ChevronRight } from "lucide-react";
+import { User, Package, LogOut, Save, Loader2, ChevronRight, LayoutDashboard } from "lucide-react";
 
 type Tab = "profile" | "orders";
 
 export default function AccountPage() {
-  const { user, profile, signOut, updateProfile, loading } = useAuth();
+  const { user, profile, signOut, updateProfile, loading, isAdmin } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [fullName, setFullName] = useState("");
@@ -71,13 +71,24 @@ export default function AccountPage() {
               </h1>
               <p className="text-zinc-500 text-sm mt-0.5">{user.email}</p>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center gap-2 text-sm text-zinc-500 hover:text-black transition-colors px-4 py-2 rounded-xl hover:bg-black/5"
-            >
-              <LogOut width={15} height={15} />
-              <span className="hidden sm:block">Uitloggen</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {isAdmin && (
+                <button
+                  onClick={() => router.push("/admin")}
+                  className="flex items-center gap-2 text-sm font-medium text-[#f24f13] hover:text-white hover:bg-[#f24f13] transition-all duration-200 px-4 py-2 rounded-xl border border-[#f24f13]/30 hover:border-[#f24f13]"
+                >
+                  <LayoutDashboard width={15} height={15} />
+                  <span>Admin Panel</span>
+                </button>
+              )}
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-2 text-sm text-zinc-500 hover:text-black transition-colors px-4 py-2 rounded-xl hover:bg-black/5"
+              >
+                <LogOut width={15} height={15} />
+                <span className="hidden sm:block">Uitloggen</span>
+              </button>
+            </div>
           </div>
         </div>
 
