@@ -1,16 +1,19 @@
 "use client";
 import Link from "next/link";
-import { Search, ShoppingBag, Heart, Menu, X, ChevronRight } from "lucide-react";
+import { Search, ShoppingBag, Heart, Menu, X, ChevronRight, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const { cartCount, toggleSearch } = useCart();
   const { favoriteCount } = useFavorites();
+  const { user, openAuth, signOut } = useAuth();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   // Menü açıldığında scroll'u kilitle
   useEffect(() => {
@@ -79,6 +82,51 @@ export default function Navbar() {
                       </span>
                   </Link>
 
+                  {/* Kullanıcı İkonu (Desktop) */}
+                  <div className="relative hidden sm:block">
+                    {user ? (
+                      <>
+                        <button
+                          onClick={() => setUserMenuOpen(!userMenuOpen)}
+                          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors text-zinc-600 hover:text-black"
+                          aria-label="Account"
+                        >
+                          <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center">
+                            <span className="text-[#eeebdf] text-[10px] font-semibold uppercase">
+                              {user.email?.[0] ?? "U"}
+                            </span>
+                          </div>
+                        </button>
+                        {userMenuOpen && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                            <div className="absolute right-0 top-full mt-2 w-48 bg-[#eeebdf] border border-black/10 rounded-2xl shadow-xl z-50 overflow-hidden">
+                              <div className="px-4 py-3 border-b border-black/5">
+                                <p className="text-xs font-medium text-black truncate">{user.email}</p>
+                              </div>
+                              <Link href="/account" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-black/5 hover:text-black transition-colors">
+                                <User width={14} height={14} />
+                                Mijn account
+                              </Link>
+                              <button onClick={() => { setUserMenuOpen(false); signOut(); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-black/5 hover:text-black transition-colors border-t border-black/5">
+                                <X width={14} height={14} />
+                                Uitloggen
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => openAuth("login")}
+                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors text-zinc-600 hover:text-black"
+                        aria-label="Inloggen"
+                      >
+                        <User width={18} height={18} strokeWidth={2} />
+                      </button>
+                    )}
+                  </div>
+
                   {/* Sepet İkonu */}
                   <Link href="/cart" className="relative group cursor-pointer mr-1 sm:mr-0">
                       <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors text-zinc-600 hover:text-black">
@@ -143,9 +191,41 @@ export default function Navbar() {
           
           <div className="h-px bg-black/5 my-2"></div>
 
+          {/* Auth (Mobil) */}
+          {user ? (
+            <div className="flex flex-col gap-2 py-2">
+              <Link href="/account" className="flex items-center justify-between text-sm font-medium text-zinc-800 py-2 group">
+                <span className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center">
+                    <span className="text-[#eeebdf] text-[10px] font-semibold uppercase">{user.email?.[0] ?? "U"}</span>
+                  </div>
+                  Mijn account
+                </span>
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-[#f24f13] group-hover:translate-x-1 transition-all" strokeWidth={1.5} />
+              </Link>
+              <button onClick={() => signOut()} className="flex items-center justify-between text-sm font-medium text-zinc-500 py-2 hover:text-black transition-colors w-full">
+                Uitloggen
+                <X width={14} height={14} className="text-zinc-400" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { setIsMobileMenuOpen(false); openAuth("login"); }}
+              className="flex items-center justify-between text-sm font-medium text-zinc-800 py-2 group w-full mt-1"
+            >
+              <span className="flex items-center gap-2">
+                <User width={15} height={15} className="text-zinc-500" />
+                Inloggen / Registreren
+              </span>
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-[#f24f13] group-hover:translate-x-1 transition-all" strokeWidth={1.5} />
+            </button>
+          )}
+
+          <div className="h-px bg-black/5 my-2"></div>
+
           {/* Favoriler İkonu (Sadece İkon) */}
           <div className="py-2">
-            <Link 
+            <Link
                 href="/favorites"
                 className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-white border border-black/5 text-zinc-600 hover:text-[#f24f13] hover:border-[#f24f13]/20 transition-all"
                 aria-label="Favorieten"

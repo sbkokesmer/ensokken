@@ -5,8 +5,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchOverlay from "@/components/SearchOverlay";
 import CartNotification from "@/components/CartNotification";
+import AuthModal from "@/components/AuthModal";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
+import { AuthProvider } from "@/context/AuthContext";
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -31,17 +33,20 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <FavoritesProvider>
-          <CartProvider>
-            <Navbar />
-            <SearchOverlay />
-            <CartNotification />
-            <div className="min-h-screen flex flex-col">
-              {children}
-            </div>
-            <Footer />
-          </CartProvider>
-        </FavoritesProvider>
+        <AuthProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <Navbar />
+              <SearchOverlay />
+              <CartNotification />
+              <AuthModal />
+              <div className="min-h-screen flex flex-col">
+                {children}
+              </div>
+              <Footer />
+            </CartProvider>
+          </FavoritesProvider>
+        </AuthProvider>
       </body>
     </html>
   );
