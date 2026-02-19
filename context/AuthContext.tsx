@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 interface Profile {
   id: string;
@@ -9,6 +10,7 @@ interface Profile {
   email: string;
   phone: string;
   avatar_url: string;
+  is_admin: boolean;
 }
 
 interface AuthContextType {
@@ -16,6 +18,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  isAdmin: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -36,6 +39,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const router = useRouter();
+
+  const isAdmin = profile?.is_admin === true;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -50,7 +56,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          const p = await fetchProfile(session.user.id);
+          if (event === "SIGNED_IN" && p?.is_admin) {
+            router.push("/admin");
+          }
         } else {
           setProfile(null);
         }
@@ -59,13 +68,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  async function fetchProfile(userId: string) {
+  async function fetchProfile(userId: string): Promise<Profile | null> {
     const { data } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .maybeSingle();
     if (data) setProfile(data);
+    return data ?? null;
   }
 
   async function signUp(email: string, password: string, fullName: string) {
@@ -86,6 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function signOut() {
     await supabase.auth.signOut();
+    router.push("/");
   }
 
   async function updateProfile(data: Partial<Profile>) {
@@ -115,6 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         profile,
         loading,
+        isAdmin,
         signUp,
         signIn,
         signOut,
