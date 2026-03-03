@@ -110,7 +110,7 @@ export default function AdminDashboard() {
 
       <div className="p-8 flex flex-col gap-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Totale omzet" value={`€${(stats?.totalRevenue ?? 0).toFixed(2)}`} sub="Betaalde bestellingen" accent />
+          <StatCard label="Totale omzet" value={`€${(stats?.totalRevenue ?? 0).toFixed(2)}`} sub="Betaalde bestellingen" />
           <StatCard label="Bestellingen" value={stats?.totalOrders ?? "—"} sub={`${stats?.pendingOrders ?? 0} in afwachting`} />
           <StatCard label="Gebruikers" value={stats?.totalUsers ?? "—"} sub="Geregistreerde klanten" />
           <StatCard label="Producten" value={stats?.totalProducts ?? "—"} sub="Actieve producten" />

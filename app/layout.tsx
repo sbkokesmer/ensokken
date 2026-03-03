@@ -10,6 +10,7 @@ import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Script from "next/script";
+import { NavbarWrapper, FooterWrapper } from "@/components/ConditionalWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -36,14 +37,14 @@ export default function RootLayout({
         <AuthProvider>
           <FavoritesProvider>
             <CartProvider>
-              <Navbar />
+              <NavbarWrapper />
               <SearchOverlay />
               <CartNotification />
               <AuthModal />
               <div className="min-h-screen flex flex-col">
                 {children}
               </div>
-              <Footer />
+              <FooterWrapper />
             </CartProvider>
           </FavoritesProvider>
         </AuthProvider>
