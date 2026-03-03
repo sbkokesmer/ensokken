@@ -42,6 +42,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      (async () => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          const adminStatus = await fetchProfileAndAdmin(session.user.id);
+          setIsAdmin(adminStatus);
+        }
+        setLoading(false);
+      })();
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
         setSession(session);

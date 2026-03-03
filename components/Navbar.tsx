@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Search, ShoppingBag, Heart, Menu, X, ChevronRight, User } from "lucide-react";
+import { Search, ShoppingBag, Heart, Menu, X, ChevronRight, User, LayoutDashboard } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 export default function Navbar() {
   const { cartCount, toggleSearch } = useCart();
   const { favoriteCount } = useFavorites();
-  const { user, openAuth, signOut } = useAuth();
+  const { user, isAdmin, openAuth, signOut } = useAuth();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -108,6 +108,12 @@ export default function Navbar() {
                                 <User width={14} height={14} />
                                 Mijn account
                               </Link>
+                              {isAdmin && (
+                                <Link href="/admin" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-black/5 hover:text-black transition-colors border-t border-black/5">
+                                  <LayoutDashboard width={14} height={14} />
+                                  Admin Panel
+                                </Link>
+                              )}
                               <button onClick={() => { setUserMenuOpen(false); signOut(); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-black/5 hover:text-black transition-colors border-t border-black/5">
                                 <X width={14} height={14} />
                                 Uitloggen
@@ -203,6 +209,15 @@ export default function Navbar() {
                 </span>
                 <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-[#f24f13] group-hover:translate-x-1 transition-all" strokeWidth={1.5} />
               </Link>
+              {isAdmin && (
+                <Link href="/admin" className="flex items-center justify-between text-sm font-medium text-zinc-800 py-2 group">
+                  <span className="flex items-center gap-2">
+                    <LayoutDashboard width={15} height={15} className="text-zinc-500" />
+                    Admin Panel
+                  </span>
+                  <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-[#f24f13] group-hover:translate-x-1 transition-all" strokeWidth={1.5} />
+                </Link>
+              )}
               <button onClick={() => signOut()} className="flex items-center justify-between text-sm font-medium text-zinc-500 py-2 hover:text-black transition-colors w-full">
                 Uitloggen
                 <X width={14} height={14} className="text-zinc-400" />
