@@ -46,9 +46,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchProfile(session.user.id);
-        const admin = await checkAdmin(session.user.id);
-        setIsAdmin(admin);
+        const adminStatus = await fetchProfileAndAdmin(session.user.id);
+        setIsAdmin(adminStatus);
       }
       setLoading(false);
     });
@@ -58,11 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchProfile(session.user.id);
-          const admin = await checkAdmin(session.user.id);
-          setIsAdmin(admin);
+          const adminStatus = await fetchProfileAndAdmin(session.user.id);
+          setIsAdmin(adminStatus);
           setLoading(false);
-          if (event === "SIGNED_IN" && admin) {
+          if (event === "SIGNED_IN" && adminStatus) {
             router.push("/admin");
           }
         } else {
@@ -74,14 +72,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  async function checkAdmin(userId: string): Promise<boolean> {
-    if (!userId) return false;
+  async function fetchProfileAndAdmin(userId: string): Promise<boolean> {
     const { data } = await supabase
       .from("profiles")
-      .select("is_admin")
+      .select("id, full_name, email, phone, avatar_url, is_admin")
       .eq("id", userId)
       .maybeSingle();
-    return data?.is_admin === true;
+    if (data) {
+      setProfile({
+        id: data.id,
+        full_name: data.full_name,
+        email: data.email,
+        phone: data.phone,
+        avatar_url: data.avatar_url,
+      });
+      return data.is_admin === true;
+    }
+    return false;
   }
 
   async function fetchProfile(userId: string): Promise<Profile | null> {
