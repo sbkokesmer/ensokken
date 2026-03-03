@@ -334,11 +334,16 @@ export default function AdminProducts() {
                     style={{ background: "var(--at-surface-input)", border: "1px solid var(--at-border-input)", color: "var(--at-text)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--at-text-dim)" }}>Badge</label>
-                  <input value={form.badge} onChange={(e) => setForm({ ...form, badge: e.target.value })}
-                    placeholder="Best Seller / Nieuw"
-                    className="w-full h-10 px-3 rounded-xl text-sm focus:outline-none transition-colors"
-                    style={{ background: "var(--at-surface-input)", border: "1px solid var(--at-border-input)", color: "var(--at-text)" }} />
+                  <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--at-text-dim)" }}>Label</label>
+                  <select value={form.badge} onChange={(e) => setForm({ ...form, badge: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl text-sm focus:outline-none transition-colors appearance-none"
+                    style={{ background: "var(--at-surface-input)", border: "1px solid var(--at-border-input)", color: "var(--at-text)" }}>
+                    <option value="">Geen label</option>
+                    <option value="Nieuw">Nieuw</option>
+                    <option value="Premium">Premium</option>
+                    <option value="Aanbieding">Aanbieding</option>
+                    <option value="Standaard">Standaard</option>
+                  </select>
                 </div>
               </div>
 

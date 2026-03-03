@@ -192,7 +192,13 @@ export default function CollectionPage() {
                       <Link href={`/product/${product.id}`} className="cursor-pointer flex flex-col h-full">
                         <div className="aspect-[4/5] bg-white rounded-2xl overflow-hidden border border-black/5 relative mb-3 hover:border-black/20 transition-all duration-300">
                           {product.badge && (
-                            <span className="absolute top-3 left-3 bg-black text-white text-[10px] font-bold px-2 py-1 rounded-full z-10 uppercase tracking-wide">
+                            <span
+                              className="absolute top-3 left-3 text-[10px] font-bold px-2 py-1 rounded-full z-10 uppercase tracking-wide"
+                              style={{
+                                background: product.badge === "Nieuw" ? "#17a6a6" : product.badge === "Aanbieding" ? "#f24f13" : product.badge === "Premium" ? "#1a1a1a" : "#6b7280",
+                                color: "#fff",
+                              }}
+                            >
                               {product.badge}
                             </span>
                           )}

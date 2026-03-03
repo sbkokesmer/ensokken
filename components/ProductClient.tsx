@@ -55,7 +55,13 @@ export default function ProductClient({ product }: ProductClientProps) {
         <div className="lg:col-span-7 flex flex-col gap-6">
           <div className="aspect-[4/5] bg-[#f4f4f5] rounded-[2rem] relative overflow-hidden group">
             {product.badge && (
-              <span className="absolute top-6 left-6 bg-black text-white text-xs font-bold px-3 py-1.5 rounded-full z-20 uppercase tracking-wider">
+              <span
+                className="absolute top-6 left-6 text-xs font-bold px-3 py-1.5 rounded-full z-20 uppercase tracking-wider"
+                style={{
+                  background: product.badge === "Nieuw" ? "#17a6a6" : product.badge === "Aanbieding" ? "#f24f13" : product.badge === "Premium" ? "#1a1a1a" : "#6b7280",
+                  color: "#fff",
+                }}
+              >
                 {product.badge}
               </span>
             )}
