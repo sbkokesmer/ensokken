@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         await fetchProfile(session.user.id);
-        const admin = await checkAdmin(session.user.email ?? "");
+        const admin = await checkAdmin(session.user.id);
         setIsAdmin(admin);
       }
       setLoading(false);
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         if (session?.user) {
           await fetchProfile(session.user.id);
-          const admin = await checkAdmin(session.user.email ?? "");
+          const admin = await checkAdmin(session.user.id);
           setIsAdmin(admin);
           setLoading(false);
           if (event === "SIGNED_IN" && admin) {
@@ -74,14 +74,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  async function checkAdmin(email: string): Promise<boolean> {
-    if (!email) return false;
+  async function checkAdmin(userId: string): Promise<boolean> {
+    if (!userId) return false;
     const { data } = await supabase
-      .from("admins")
-      .select("id")
-      .eq("email", email)
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", userId)
       .maybeSingle();
-    return !!data;
+    return data?.is_admin === true;
   }
 
   async function fetchProfile(userId: string): Promise<Profile | null> {
