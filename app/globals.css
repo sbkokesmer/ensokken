@@ -21,6 +21,81 @@ body {
 ::-webkit-scrollbar-track { background: #eeebdf; }
 ::-webkit-scrollbar-thumb { background: #d4d1c0; border-radius: 4px; }
 
+/* Admin Theme Variables */
+[data-admin-theme="dark"] {
+  --at-bg: #0f0f0f;
+  --at-sidebar: #0a0a0a;
+  --at-surface: #161616;
+  --at-surface-2: #1a1a1a;
+  --at-surface-input: #0d0d0d;
+  --at-border: rgba(255,255,255,0.06);
+  --at-border-strong: rgba(255,255,255,0.08);
+  --at-border-input: rgba(255,255,255,0.06);
+  --at-border-focus: rgba(255,255,255,0.15);
+  --at-text: #ffffff;
+  --at-text-secondary: rgba(255,255,255,0.60);
+  --at-text-muted: rgba(255,255,255,0.35);
+  --at-text-faint: rgba(255,255,255,0.25);
+  --at-text-placeholder: rgba(255,255,255,0.20);
+  --at-text-dim: rgba(255,255,255,0.40);
+  --at-btn-primary-bg: #ffffff;
+  --at-btn-primary-text: #000000;
+  --at-btn-primary-hover: rgba(255,255,255,0.90);
+  --at-btn-secondary-bg: rgba(255,255,255,0.05);
+  --at-btn-secondary-text: rgba(255,255,255,0.60);
+  --at-btn-secondary-hover: rgba(255,255,255,0.10);
+  --at-hover-row: rgba(255,255,255,0.02);
+  --at-hover-btn: rgba(255,255,255,0.05);
+  --at-hover-btn-text: #ffffff;
+  --at-icon: rgba(255,255,255,0.40);
+  --at-header-bg: rgba(15,15,15,0.95);
+  --at-badge-active-bg: rgba(52,211,153,0.10);
+  --at-badge-active-text: #34d399;
+  --at-badge-inactive-bg: rgba(161,161,170,0.10);
+  --at-badge-inactive-text: #a1a1aa;
+  --at-scrollbar-track: #161616;
+  --at-scrollbar-thumb: #2a2a2a;
+}
+
+[data-admin-theme="light"] {
+  --at-bg: #f5f5f4;
+  --at-sidebar: #ffffff;
+  --at-surface: #ffffff;
+  --at-surface-2: #f9f9f8;
+  --at-surface-input: #f4f4f3;
+  --at-border: rgba(0,0,0,0.07);
+  --at-border-strong: rgba(0,0,0,0.10);
+  --at-border-input: rgba(0,0,0,0.08);
+  --at-border-focus: rgba(0,0,0,0.20);
+  --at-text: #111111;
+  --at-text-secondary: rgba(0,0,0,0.65);
+  --at-text-muted: rgba(0,0,0,0.45);
+  --at-text-faint: rgba(0,0,0,0.30);
+  --at-text-placeholder: rgba(0,0,0,0.25);
+  --at-text-dim: rgba(0,0,0,0.50);
+  --at-btn-primary-bg: #111111;
+  --at-btn-primary-text: #ffffff;
+  --at-btn-primary-hover: #2a2a2a;
+  --at-btn-secondary-bg: rgba(0,0,0,0.05);
+  --at-btn-secondary-text: rgba(0,0,0,0.60);
+  --at-btn-secondary-hover: rgba(0,0,0,0.09);
+  --at-hover-row: rgba(0,0,0,0.02);
+  --at-hover-btn: rgba(0,0,0,0.04);
+  --at-hover-btn-text: #111111;
+  --at-icon: rgba(0,0,0,0.40);
+  --at-header-bg: rgba(245,245,244,0.95);
+  --at-badge-active-bg: rgba(22,163,74,0.10);
+  --at-badge-active-text: #16a34a;
+  --at-badge-inactive-bg: rgba(100,116,139,0.10);
+  --at-badge-inactive-text: #64748b;
+  --at-scrollbar-track: #f0f0ee;
+  --at-scrollbar-thumb: #d4d4d2;
+}
+
+[data-admin-theme] *::-webkit-scrollbar { width: 5px; }
+[data-admin-theme] *::-webkit-scrollbar-track { background: var(--at-scrollbar-track); }
+[data-admin-theme] *::-webkit-scrollbar-thumb { background: var(--at-scrollbar-thumb); border-radius: 4px; }
+
 /* 3D Card Animation Styles */
 .stage-3d { 
   perspective: 2000px; 

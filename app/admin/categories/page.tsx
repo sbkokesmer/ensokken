@@ -79,6 +79,8 @@ export default function AdminCategories() {
     return new Date(d).toLocaleDateString("nl-NL", { day: "2-digit", month: "short", year: "numeric" });
   }
 
+  const inputCls = "w-full h-10 px-3 text-sm focus:outline-none transition-colors rounded-xl";
+
   return (
     <div>
       <AdminHeader
@@ -87,7 +89,8 @@ export default function AdminCategories() {
         action={
           <button
             onClick={() => setShowAdd(true)}
-            className="flex items-center gap-2 h-9 px-4 bg-white text-black rounded-xl text-sm font-medium hover:bg-white/90 transition-colors"
+            className="flex items-center gap-2 h-9 px-4 rounded-xl text-sm font-medium transition-colors"
+            style={{ background: "var(--at-btn-primary-bg)", color: "var(--at-btn-primary-text)" }}
           >
             <Plus width={15} height={15} />
             Nieuwe categorie
@@ -97,27 +100,44 @@ export default function AdminCategories() {
 
       <div className="p-8 flex flex-col gap-5">
         {showAdd && (
-          <div className="bg-[#161616] border border-white/[0.08] rounded-2xl p-5">
-            <p className="text-white font-semibold text-sm mb-4">Nieuwe categorie</p>
+          <div className="rounded-2xl p-5" style={{ background: "var(--at-surface)", border: "1px solid var(--at-border-strong)" }}>
+            <p className="font-semibold text-sm mb-4" style={{ color: "var(--at-text)" }}>Nieuwe categorie</p>
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
-                <label className="block text-xs text-white/40 mb-1.5">Naam *</label>
-                <input value={newName} onChange={(e) => { setNewName(e.target.value); setNewSlug(slugify(e.target.value)); }}
+                <label className="block text-xs mb-1.5" style={{ color: "var(--at-text-dim)" }}>Naam *</label>
+                <input
+                  value={newName}
+                  onChange={(e) => { setNewName(e.target.value); setNewSlug(slugify(e.target.value)); }}
                   placeholder="Heren"
-                  className="w-full h-10 px-3 bg-[#0d0d0d] border border-white/[0.05] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors" />
+                  className={inputCls}
+                  style={{ background: "var(--at-surface-input)", border: "1px solid var(--at-border-input)", color: "var(--at-text)" }}
+                />
               </div>
               <div>
-                <label className="block text-xs text-white/40 mb-1.5">Slug</label>
-                <input value={newSlug} onChange={(e) => setNewSlug(e.target.value)}
+                <label className="block text-xs mb-1.5" style={{ color: "var(--at-text-dim)" }}>Slug</label>
+                <input
+                  value={newSlug}
+                  onChange={(e) => setNewSlug(e.target.value)}
                   placeholder="heren"
-                  className="w-full h-10 px-3 bg-[#0d0d0d] border border-white/[0.05] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors font-mono" />
+                  className={`${inputCls} font-mono`}
+                  style={{ background: "var(--at-surface-input)", border: "1px solid var(--at-border-input)", color: "var(--at-text)" }}
+                />
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setShowAdd(false)} className="flex items-center gap-1.5 h-9 px-4 bg-white/5 text-white/50 rounded-xl text-sm hover:bg-white/8 hover:text-white transition-colors">
+              <button
+                onClick={() => setShowAdd(false)}
+                className="flex items-center gap-1.5 h-9 px-4 rounded-xl text-sm transition-colors"
+                style={{ background: "var(--at-btn-secondary-bg)", color: "var(--at-btn-secondary-text)" }}
+              >
                 <X width={14} height={14} /> Annuleren
               </button>
-              <button onClick={handleAdd} disabled={saving || !newName.trim()} className="flex items-center gap-1.5 h-9 px-4 bg-white text-black rounded-xl text-sm font-medium hover:bg-white/90 transition-colors disabled:opacity-50">
+              <button
+                onClick={handleAdd}
+                disabled={saving || !newName.trim()}
+                className="flex items-center gap-1.5 h-9 px-4 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                style={{ background: "var(--at-btn-primary-bg)", color: "var(--at-btn-primary-text)" }}
+              >
                 {saving ? <Loader2 width={14} height={14} className="animate-spin" /> : <Check width={14} height={14} />}
                 Toevoegen
               </button>
@@ -125,66 +145,95 @@ export default function AdminCategories() {
           </div>
         )}
 
-        <div className="bg-[#161616] border border-white/[0.06] rounded-2xl overflow-hidden">
+        <div className="rounded-2xl overflow-hidden" style={{ background: "var(--at-surface)", border: "1px solid var(--at-border)" }}>
           {loading ? (
-            <div className="p-12 flex items-center justify-center gap-2 text-white/30 text-sm">
+            <div className="p-12 flex items-center justify-center gap-2 text-sm" style={{ color: "var(--at-text-muted)" }}>
               <Loader2 width={16} height={16} className="animate-spin" /> Laden...
             </div>
           ) : categories.length === 0 ? (
-            <div className="p-12 text-center text-white/30 text-sm">Geen categorieën</div>
+            <div className="p-12 text-center text-sm" style={{ color: "var(--at-text-muted)" }}>Geen categorieën</div>
           ) : (
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/[0.05]">
-                  <th className="text-left px-5 py-3 text-white/30 text-xs font-medium">Naam</th>
-                  <th className="text-left px-5 py-3 text-white/30 text-xs font-medium">Slug</th>
-                  <th className="text-left px-5 py-3 text-white/30 text-xs font-medium">Producten</th>
-                  <th className="text-left px-5 py-3 text-white/30 text-xs font-medium">Aangemaakt</th>
+                <tr style={{ borderBottom: "1px solid var(--at-border)" }}>
+                  <th className="text-left px-5 py-3 text-xs font-medium" style={{ color: "var(--at-text-muted)" }}>Naam</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium" style={{ color: "var(--at-text-muted)" }}>Slug</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium" style={{ color: "var(--at-text-muted)" }}>Producten</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium" style={{ color: "var(--at-text-muted)" }}>Aangemaakt</th>
                   <th className="px-5 py-3"></th>
                 </tr>
               </thead>
               <tbody>
                 {categories.map((c) => (
-                  <tr key={c.id} className="border-b border-white/[0.05] last:border-0 hover:bg-white/2 transition-colors">
+                  <tr key={c.id} className="transition-colors" style={{ borderBottom: "1px solid var(--at-border)" }}>
                     <td className="px-5 py-3">
                       {editingId === c.id ? (
-                        <input value={editName} onChange={(e) => { setEditName(e.target.value); setEditSlug(slugify(e.target.value)); }}
-                          className="h-8 px-3 bg-[#0d0d0d] border border-white/10 rounded-lg text-white text-sm focus:outline-none w-36" />
+                        <input
+                          value={editName}
+                          onChange={(e) => { setEditName(e.target.value); setEditSlug(slugify(e.target.value)); }}
+                          className="h-8 px-3 text-sm focus:outline-none rounded-lg w-36"
+                          style={{ background: "var(--at-surface-input)", border: "1px solid var(--at-border-focus)", color: "var(--at-text)" }}
+                        />
                       ) : (
-                        <span className="text-white text-sm font-medium">{c.name}</span>
+                        <span className="text-sm font-medium" style={{ color: "var(--at-text)" }}>{c.name}</span>
                       )}
                     </td>
                     <td className="px-5 py-3">
                       {editingId === c.id ? (
-                        <input value={editSlug} onChange={(e) => setEditSlug(e.target.value)}
-                          className="h-8 px-3 bg-[#0d0d0d] border border-white/10 rounded-lg text-white text-sm font-mono focus:outline-none w-36" />
+                        <input
+                          value={editSlug}
+                          onChange={(e) => setEditSlug(e.target.value)}
+                          className="h-8 px-3 text-sm font-mono focus:outline-none rounded-lg w-36"
+                          style={{ background: "var(--at-surface-input)", border: "1px solid var(--at-border-focus)", color: "var(--at-text)" }}
+                        />
                       ) : (
-                        <span className="text-white/40 text-xs font-mono">{c.slug}</span>
+                        <span className="text-xs font-mono" style={{ color: "var(--at-text-dim)" }}>{c.slug}</span>
                       )}
                     </td>
-                    <td className="px-5 py-3">
-                      <span className="text-white/60 text-sm">{c.product_count}</span>
-                    </td>
-                    <td className="px-5 py-3 text-white/40 text-xs">{formatDate(c.created_at)}</td>
+                    <td className="px-5 py-3 text-sm" style={{ color: "var(--at-text-secondary)" }}>{c.product_count}</td>
+                    <td className="px-5 py-3 text-xs" style={{ color: "var(--at-text-dim)" }}>{formatDate(c.created_at)}</td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-1 justify-end">
                         {editingId === c.id ? (
                           <>
-                            <button onClick={() => handleUpdate(c.id)} disabled={saving} className="w-8 h-8 flex items-center justify-center rounded-lg bg-green-400/10 text-green-400 hover:bg-green-400/20 transition-colors">
+                            <button
+                              onClick={() => handleUpdate(c.id)}
+                              disabled={saving}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-green-400 bg-green-400/10 hover:bg-green-400/20"
+                            >
                               {saving ? <Loader2 width={13} height={13} className="animate-spin" /> : <Check width={13} height={13} />}
                             </button>
-                            <button onClick={() => setEditingId(null)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 text-white/30 hover:text-white transition-colors">
+                            <button
+                              onClick={() => setEditingId(null)}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+                              style={{ color: "var(--at-text-muted)" }}
+                            >
                               <X width={13} height={13} />
                             </button>
                           </>
                         ) : (
                           <>
-                            <button onClick={() => { setEditingId(c.id); setEditName(c.name); setEditSlug(c.slug); }}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 text-white/30 hover:text-white transition-colors">
+                            <button
+                              onClick={() => { setEditingId(c.id); setEditName(c.name); setEditSlug(c.slug); }}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+                              style={{ color: "var(--at-text-muted)" }}
+                              onMouseEnter={(e) => {
+                                (e.currentTarget as HTMLElement).style.background = "var(--at-hover-btn)";
+                                (e.currentTarget as HTMLElement).style.color = "var(--at-hover-btn-text)";
+                              }}
+                              onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLElement).style.background = "transparent";
+                                (e.currentTarget as HTMLElement).style.color = "var(--at-text-muted)";
+                              }}
+                            >
                               <Pencil width={13} height={13} />
                             </button>
-                            <button onClick={() => handleDelete(c.id)} disabled={deleting === c.id}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-colors">
+                            <button
+                              onClick={() => handleDelete(c.id)}
+                              disabled={deleting === c.id}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:text-red-400 hover:bg-red-400/10"
+                              style={{ color: "var(--at-text-muted)" }}
+                            >
                               {deleting === c.id ? <Loader2 width={13} height={13} className="animate-spin" /> : <Trash2 width={13} height={13} />}
                             </button>
                           </>

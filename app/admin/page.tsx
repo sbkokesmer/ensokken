@@ -117,66 +117,66 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-[#161616] border border-white/[0.06] rounded-2xl p-4 flex items-center gap-4">
+          <div className="rounded-2xl p-4 flex items-center gap-4" style={{ background: "var(--at-surface)", border: "1px solid var(--at-border)" }}>
             <div className="w-10 h-10 rounded-xl bg-amber-400/10 flex items-center justify-center">
               <Clock width={18} height={18} className="text-amber-400" />
             </div>
             <div>
-              <p className="text-white font-semibold text-lg">{stats?.pendingOrders ?? "—"}</p>
-              <p className="text-white/35 text-xs">In afwachting</p>
+              <p className="font-semibold text-lg" style={{ color: "var(--at-text)" }}>{stats?.pendingOrders ?? "—"}</p>
+              <p className="text-xs" style={{ color: "var(--at-text-muted)" }}>In afwachting</p>
             </div>
           </div>
-          <div className="bg-[#161616] border border-white/[0.06] rounded-2xl p-4 flex items-center gap-4">
+          <div className="rounded-2xl p-4 flex items-center gap-4" style={{ background: "var(--at-surface)", border: "1px solid var(--at-border)" }}>
             <div className="w-10 h-10 rounded-xl bg-emerald-400/10 flex items-center justify-center">
               <CheckCircle width={18} height={18} className="text-emerald-400" />
             </div>
             <div>
-              <p className="text-white font-semibold text-lg">{stats?.deliveredOrders ?? "—"}</p>
-              <p className="text-white/35 text-xs">Bezorgd</p>
+              <p className="font-semibold text-lg" style={{ color: "var(--at-text)" }}>{stats?.deliveredOrders ?? "—"}</p>
+              <p className="text-xs" style={{ color: "var(--at-text-muted)" }}>Bezorgd</p>
             </div>
           </div>
-          <div className="bg-[#161616] border border-white/[0.06] rounded-2xl p-4 flex items-center gap-4">
+          <div className="rounded-2xl p-4 flex items-center gap-4" style={{ background: "var(--at-surface)", border: "1px solid var(--at-border)" }}>
             <div className="w-10 h-10 rounded-xl bg-red-400/10 flex items-center justify-center">
               <XCircle width={18} height={18} className="text-red-400" />
             </div>
             <div>
-              <p className="text-white font-semibold text-lg">{stats?.cancelledOrders ?? "—"}</p>
-              <p className="text-white/35 text-xs">Geannuleerd</p>
+              <p className="font-semibold text-lg" style={{ color: "var(--at-text)" }}>{stats?.cancelledOrders ?? "—"}</p>
+              <p className="text-xs" style={{ color: "var(--at-text-muted)" }}>Geannuleerd</p>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div className="lg:col-span-2 bg-[#161616] border border-white/[0.06] rounded-2xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/[0.06] flex items-center gap-2">
-              <ShoppingCart width={14} height={14} className="text-white/40" />
-              <h3 className="text-white/70 text-sm font-medium">Recente bestellingen</h3>
+          <div className="lg:col-span-2 rounded-2xl overflow-hidden" style={{ background: "var(--at-surface)", border: "1px solid var(--at-border)" }}>
+            <div className="px-5 py-4 flex items-center gap-2" style={{ borderBottom: "1px solid var(--at-border)" }}>
+              <ShoppingCart width={14} height={14} style={{ color: "var(--at-icon)" }} />
+              <h3 className="text-sm font-medium" style={{ color: "var(--at-text-secondary)" }}>Recente bestellingen</h3>
             </div>
             {loading ? (
-              <div className="p-8 text-center text-white/20 text-sm">Laden...</div>
+              <div className="p-8 text-center text-sm" style={{ color: "var(--at-text-faint)" }}>Laden...</div>
             ) : stats?.recentOrders.length === 0 ? (
-              <div className="p-8 text-center text-white/20 text-sm">Nog geen bestellingen</div>
+              <div className="p-8 text-center text-sm" style={{ color: "var(--at-text-faint)" }}>Nog geen bestellingen</div>
             ) : (
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/[0.04]">
-                    <th className="text-left px-5 py-3 text-white/25 text-xs font-medium">Bestelling</th>
-                    <th className="text-left px-5 py-3 text-white/25 text-xs font-medium">Bedrag</th>
-                    <th className="text-left px-5 py-3 text-white/25 text-xs font-medium">Status</th>
-                    <th className="text-left px-5 py-3 text-white/25 text-xs font-medium">Datum</th>
+                  <tr style={{ borderBottom: "1px solid var(--at-border)" }}>
+                    <th className="text-left px-5 py-3 text-xs font-medium" style={{ color: "var(--at-text-faint)" }}>Bestelling</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium" style={{ color: "var(--at-text-faint)" }}>Bedrag</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium" style={{ color: "var(--at-text-faint)" }}>Status</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium" style={{ color: "var(--at-text-faint)" }}>Datum</th>
                   </tr>
                 </thead>
                 <tbody>
                   {stats.recentOrders.map((order) => (
-                    <tr key={order.id} className="border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02] transition-colors">
-                      <td className="px-5 py-3 text-white text-sm font-medium">{order.order_number}</td>
-                      <td className="px-5 py-3 text-white/60 text-sm">€{Number(order.total).toFixed(2)}</td>
+                    <tr key={order.id} className="transition-colors last:border-0" style={{ borderBottom: "1px solid var(--at-border)" }}>
+                      <td className="px-5 py-3 text-sm font-medium" style={{ color: "var(--at-text)" }}>{order.order_number}</td>
+                      <td className="px-5 py-3 text-sm" style={{ color: "var(--at-text-secondary)" }}>€{Number(order.total).toFixed(2)}</td>
                       <td className="px-5 py-3">
                         <span className={`text-xs px-2 py-1 rounded-lg font-medium ${statusColors[order.status] || "text-white/40 bg-white/5"}`}>
                           {statusLabels[order.status] || order.status}
                         </span>
                       </td>
-                      <td className="px-5 py-3 text-white/30 text-xs">{formatDate(order.created_at)}</td>
+                      <td className="px-5 py-3 text-xs" style={{ color: "var(--at-text-muted)" }}>{formatDate(order.created_at)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -184,29 +184,29 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          <div className="bg-[#161616] border border-white/[0.06] rounded-2xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/[0.06] flex items-center gap-2">
-              <Users width={14} height={14} className="text-white/40" />
-              <h3 className="text-white/70 text-sm font-medium">Nieuwe gebruikers</h3>
+          <div className="rounded-2xl overflow-hidden" style={{ background: "var(--at-surface)", border: "1px solid var(--at-border)" }}>
+            <div className="px-5 py-4 flex items-center gap-2" style={{ borderBottom: "1px solid var(--at-border)" }}>
+              <Users width={14} height={14} style={{ color: "var(--at-icon)" }} />
+              <h3 className="text-sm font-medium" style={{ color: "var(--at-text-secondary)" }}>Nieuwe gebruikers</h3>
             </div>
             {loading ? (
-              <div className="p-8 text-center text-white/20 text-sm">Laden...</div>
+              <div className="p-8 text-center text-sm" style={{ color: "var(--at-text-faint)" }}>Laden...</div>
             ) : stats?.recentUsers.length === 0 ? (
-              <div className="p-8 text-center text-white/20 text-sm">Nog geen gebruikers</div>
+              <div className="p-8 text-center text-sm" style={{ color: "var(--at-text-faint)" }}>Nog geen gebruikers</div>
             ) : (
-              <div className="flex flex-col divide-y divide-white/[0.04]">
+              <div className="flex flex-col">
                 {stats.recentUsers.map((u) => (
-                  <div key={u.id} className="px-5 py-3.5 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center shrink-0">
-                      <span className="text-white/40 text-xs font-semibold uppercase">
+                  <div key={u.id} className="px-5 py-3.5 flex items-center gap-3" style={{ borderBottom: "1px solid var(--at-border)" }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--at-hover-btn)" }}>
+                      <span className="text-xs font-semibold uppercase" style={{ color: "var(--at-text-dim)" }}>
                         {u.email?.[0] ?? "?"}
                       </span>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-white text-sm font-medium truncate">{u.full_name || "—"}</p>
-                      <p className="text-white/25 text-xs truncate">{u.email}</p>
+                      <p className="text-sm font-medium truncate" style={{ color: "var(--at-text)" }}>{u.full_name || "—"}</p>
+                      <p className="text-xs truncate" style={{ color: "var(--at-text-faint)" }}>{u.email}</p>
                     </div>
-                    <p className="text-white/20 text-[10px] ml-auto shrink-0">{formatDate(u.created_at)}</p>
+                    <p className="text-[10px] ml-auto shrink-0" style={{ color: "var(--at-text-placeholder)" }}>{formatDate(u.created_at)}</p>
                   </div>
                 ))}
               </div>
