@@ -19,6 +19,7 @@ interface CartContextType {
   addToCart: (product: Product, size: string, color: string) => void;
   removeFromCart: (variantId: string) => void;
   updateQuantity: (variantId: string, change: number) => void;
+  clearCart: () => void;
   cartCount: number;
   subtotal: number;
   shippingCost: number;
@@ -86,6 +87,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const clearCart = () => setCart([]);
+
   const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
 
   const closeNotification = () => {
@@ -104,6 +107,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addToCart,
         removeFromCart,
         updateQuantity,
+        clearCart,
         cartCount,
         subtotal,
         shippingCost,

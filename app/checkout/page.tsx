@@ -1,20 +1,42 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { ArrowLeft, CreditCard, ShieldCheck, Lock, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 
+interface FormData {
+  email: string;
+  firstName: string;
+  lastName: string;
+  address: string;
+  city: string;
+  postcode: string;
+  phone: string;
+}
+
 export default function CheckoutPage() {
-  const { cart, subtotal, shippingCost, total } = useCart();
+  const { cart, subtotal, shippingCost, total, clearCart } = useCart();
+  const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<string>("");
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    postcode: "",
+    phone: "",
+  });
 
-  // Custom Validation Handler
   const handleInvalid = (e: React.InvalidEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     if (e.target.validity.valueMissing) {
       e.target.setCustomValidity("Vul dit veld in.");
-    } else if (e.target.validity.typeMismatch && e.target.type === 'email') {
+    } else if (e.target.validity.typeMismatch && e.target.type === "email") {
       e.target.setCustomValidity("Voer een geldig e-mailadres in.");
     }
   };
@@ -23,16 +45,74 @@ export default function CheckoutPage() {
     e.currentTarget.setCustomValidity("");
   };
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handleChange = (field: keyof FormData) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    
-    // Simulate payment processing
-    setTimeout(() => {
-      setIsProcessing(false);
+
+    try {
+      const shippingAddress = {
+        name: `${formData.firstName} ${formData.lastName}`,
+        address: formData.address,
+        city: formData.city,
+        postcode: formData.postcode,
+        phone: formData.phone,
+        email: formData.email,
+      };
+
+      const { data: orderData, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          user_id: user?.id ?? null,
+          status: "pending",
+          payment_status: "paid",
+          subtotal,
+          shipping_cost: shippingCost,
+          total,
+          shipping_address: shippingAddress,
+          payment_method: "card",
+        })
+        .select("id, order_number")
+        .single();
+
+      if (orderError || !orderData) {
+        throw new Error(orderError?.message ?? "Order creation failed");
+      }
+
+      const orderItems = cart.map((item) => ({
+        order_id: orderData.id,
+        product_id: item.id,
+        variant_id: null,
+        product_name: item.name,
+        color_name: item.selectedColor,
+        size: item.selectedSize,
+        quantity: item.quantity,
+        unit_price: item.price,
+        line_total: item.price * item.quantity,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
+
+      if (itemsError) {
+        throw new Error(itemsError.message);
+      }
+
+      setOrderNumber(orderData.order_number);
+      clearCart();
       setIsSuccess(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 2000);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      alert("Er is een fout opgetreden bij het plaatsen van je bestelling. Probeer het opnieuw.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (cart.length === 0 && !isSuccess) {
@@ -59,11 +139,18 @@ export default function CheckoutPage() {
             Je bestelling is succesvol aangemaakt. Bestelgegevens zijn naar je e-mailadres verzonden.
           </p>
           <div className="bg-zinc-50 p-4 rounded-xl mb-8 text-sm text-zinc-600">
-            <p>Bestelnummer: <span className="font-mono font-bold text-black">#ES{Math.floor(Math.random() * 100000)}</span></p>
+            <p>Bestelnummer: <span className="font-mono font-bold text-black">{orderNumber}</span></p>
           </div>
-          <Link href="/" className="block w-full py-4 bg-black text-white rounded-xl font-medium hover:bg-[#222] transition-colors">
-            Terug naar Home
-          </Link>
+          <div className="flex flex-col gap-3">
+            {user && (
+              <Link href="/account" className="block w-full py-3.5 bg-zinc-100 text-black rounded-xl font-medium hover:bg-zinc-200 transition-colors text-sm">
+                Mijn bestellingen bekijken
+              </Link>
+            )}
+            <Link href="/" className="block w-full py-4 bg-black text-white rounded-xl font-medium hover:bg-[#222] transition-colors">
+              Terug naar Home
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -74,14 +161,12 @@ export default function CheckoutPage() {
       <Link href="/cart" className="mb-8 text-sm text-zinc-500 hover:text-black flex items-center gap-1 w-fit">
         <ArrowLeft width={14} height={14} /> Terug naar Winkelwagen
       </Link>
-      
+
       <div className="flex flex-col lg:flex-row gap-12">
-        {/* Left Column: Forms */}
         <div className="flex-1">
           <h1 className="text-3xl font-semibold text-black tracking-tight mb-8">Afrekenen</h1>
-          
+
           <form onSubmit={handlePayment} className="space-y-8">
-            {/* Contact Info */}
             <section className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center">1</span>
@@ -90,13 +175,15 @@ export default function CheckoutPage() {
               <div className="grid gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1.5">E-mailadres</label>
-                  <input 
-                    required 
-                    type="email" 
-                    placeholder="voorbeeld@email.com" 
+                  <input
+                    required
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange("email")}
+                    placeholder="voorbeeld@email.com"
                     onInvalid={handleInvalid}
                     onInput={handleInput}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none" 
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none"
                   />
                 </div>
                 <div className="flex items-center gap-2">
@@ -106,7 +193,6 @@ export default function CheckoutPage() {
               </div>
             </section>
 
-            {/* Shipping Address */}
             <section className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center">2</span>
@@ -115,29 +201,35 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 sm:col-span-1">
                   <label className="block text-xs font-medium text-zinc-500 mb-1.5">Voornaam</label>
-                  <input 
-                    required 
-                    type="text" 
+                  <input
+                    required
+                    type="text"
+                    value={formData.firstName}
+                    onChange={handleChange("firstName")}
                     onInvalid={handleInvalid}
                     onInput={handleInput}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none" 
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none"
                   />
                 </div>
                 <div className="col-span-2 sm:col-span-1">
                   <label className="block text-xs font-medium text-zinc-500 mb-1.5">Achternaam</label>
-                  <input 
-                    required 
-                    type="text" 
+                  <input
+                    required
+                    type="text"
+                    value={formData.lastName}
+                    onChange={handleChange("lastName")}
                     onInvalid={handleInvalid}
                     onInput={handleInput}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none" 
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none"
                   />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-zinc-500 mb-1.5">Adres</label>
-                  <textarea 
-                    required 
-                    rows={3} 
+                  <textarea
+                    required
+                    rows={3}
+                    value={formData.address}
+                    onChange={handleChange("address")}
                     onInvalid={handleInvalid}
                     onInput={handleInput}
                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none resize-none"
@@ -145,45 +237,50 @@ export default function CheckoutPage() {
                 </div>
                 <div className="col-span-2 sm:col-span-1">
                   <label className="block text-xs font-medium text-zinc-500 mb-1.5">Stad</label>
-                  <input 
-                    required 
-                    type="text" 
+                  <input
+                    required
+                    type="text"
+                    value={formData.city}
+                    onChange={handleChange("city")}
                     onInvalid={handleInvalid}
                     onInput={handleInput}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none" 
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none"
                   />
                 </div>
                 <div className="col-span-2 sm:col-span-1">
                   <label className="block text-xs font-medium text-zinc-500 mb-1.5">Postcode</label>
-                  <input 
-                    required 
-                    type="text" 
+                  <input
+                    required
+                    type="text"
+                    value={formData.postcode}
+                    onChange={handleChange("postcode")}
                     onInvalid={handleInvalid}
                     onInput={handleInput}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none" 
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none"
                   />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-zinc-500 mb-1.5">Telefoon</label>
-                  <input 
-                    required 
-                    type="tel" 
-                    placeholder="+31 6 12345678" 
+                  <input
+                    required
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange("phone")}
+                    placeholder="+31 6 12345678"
                     onInvalid={handleInvalid}
                     onInput={handleInput}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none" 
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none"
                   />
                 </div>
               </div>
             </section>
 
-            {/* Payment */}
             <section className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center">3</span>
                 Betaalmethode
               </h2>
-              
+
               <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-200 mb-6 flex items-center gap-3">
                 <ShieldCheck className="text-[#17a6a6]" width={20} height={20} />
                 <p className="text-xs text-zinc-600">Je betaling is beveiligd met een 256-bit SSL-certificaat.</p>
@@ -192,24 +289,24 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1.5">Naam op kaart</label>
-                  <input 
-                    required 
-                    type="text" 
+                  <input
+                    required
+                    type="text"
                     onInvalid={handleInvalid}
                     onInput={handleInput}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none" 
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none"
                   />
                 </div>
                 <div className="relative">
                   <label className="block text-xs font-medium text-zinc-500 mb-1.5">Kaartnummer</label>
-                  <input 
-                    required 
-                    type="text" 
-                    placeholder="0000 0000 0000 0000" 
-                    maxLength={19} 
+                  <input
+                    required
+                    type="text"
+                    placeholder="0000 0000 0000 0000"
+                    maxLength={19}
                     onInvalid={handleInvalid}
                     onInput={handleInput}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none" 
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none"
                   />
                   <div className="absolute right-4 top-[34px] text-zinc-400">
                     <CreditCard width={20} height={20} />
@@ -218,34 +315,34 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-zinc-500 mb-1.5">Vervaldatum</label>
-                    <input 
-                      required 
-                      type="text" 
-                      placeholder="MM/JJ" 
-                      maxLength={5} 
+                    <input
+                      required
+                      type="text"
+                      placeholder="MM/JJ"
+                      maxLength={5}
                       onInvalid={handleInvalid}
                       onInput={handleInput}
-                      className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none" 
+                      className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-zinc-500 mb-1.5">CVC</label>
-                    <input 
-                      required 
-                      type="text" 
-                      placeholder="123" 
-                      maxLength={3} 
+                    <input
+                      required
+                      type="text"
+                      placeholder="123"
+                      maxLength={3}
                       onInvalid={handleInvalid}
                       onInput={handleInput}
-                      className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none" 
+                      className="w-full px-4 py-3 rounded-xl bg-zinc-50 border-transparent focus:bg-white focus:border-black focus:ring-0 transition-all outline-none"
                     />
                   </div>
                 </div>
               </div>
             </section>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isProcessing}
               className="w-full py-4 bg-black text-white rounded-xl font-medium shadow-xl shadow-black/10 active:scale-95 transition-all flex items-center justify-center gap-2 hover:bg-[#222] disabled:opacity-70 disabled:cursor-not-allowed"
             >
@@ -264,11 +361,10 @@ export default function CheckoutPage() {
           </form>
         </div>
 
-        {/* Right Column: Summary */}
         <div className="lg:w-96 shrink-0">
           <div className="bg-zinc-50 p-6 rounded-[2rem] border border-zinc-200 sticky top-24">
             <h3 className="font-semibold text-lg text-black mb-6">Besteloverzicht</h3>
-            
+
             <div className="space-y-4 mb-6 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
               {cart.map((item) => (
                 <div key={item.variantId} className="flex gap-3">
@@ -296,7 +392,7 @@ export default function CheckoutPage() {
                 </span>
               </div>
             </div>
-            
+
             <div className="flex justify-between items-center text-lg font-bold text-black border-t border-zinc-200 pt-4">
               <span>Totaal</span>
               <span>€{total.toFixed(2)}</span>

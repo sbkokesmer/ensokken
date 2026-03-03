@@ -1,8 +1,50 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { User, Package, LogOut, Save, Loader2, ChevronRight, LayoutDashboard } from "lucide-react";
+
+interface OrderItem {
+  id: string;
+  product_name: string;
+  color_name: string;
+  size: string;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+}
+
+interface Order {
+  id: string;
+  order_number: string;
+  status: string;
+  subtotal: number;
+  shipping_cost: number;
+  total: number;
+  created_at: string;
+  order_items?: OrderItem[];
+}
+
+const statusLabels: Record<string, string> = {
+  pending: "In afwachting",
+  confirmed: "Bevestigd",
+  processing: "Verwerking",
+  shipped: "Verzonden",
+  delivered: "Bezorgd",
+  cancelled: "Geannuleerd",
+  refunded: "Terugbetaald",
+};
+
+const statusColors: Record<string, string> = {
+  pending: "text-yellow-700 bg-yellow-50 border-yellow-200",
+  confirmed: "text-blue-700 bg-blue-50 border-blue-200",
+  processing: "text-orange-700 bg-orange-50 border-orange-200",
+  shipped: "text-cyan-700 bg-cyan-50 border-cyan-200",
+  delivered: "text-green-700 bg-green-50 border-green-200",
+  cancelled: "text-red-700 bg-red-50 border-red-200",
+  refunded: "text-zinc-700 bg-zinc-100 border-zinc-200",
+};
 
 type Tab = "profile" | "orders";
 
@@ -14,6 +56,9 @@ export default function AccountPage() {
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -27,6 +72,31 @@ export default function AccountPage() {
       setPhone(profile.phone || "");
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (activeTab === "orders" && user) {
+      fetchOrders();
+    }
+  }, [activeTab, user]);
+
+  async function fetchOrders() {
+    setOrdersLoading(true);
+    const { data } = await supabase
+      .from("orders")
+      .select("*, order_items(*)")
+      .eq("user_id", user!.id)
+      .order("created_at", { ascending: false });
+    setOrders(data ?? []);
+    setOrdersLoading(false);
+  }
+
+  function formatDate(d: string) {
+    return new Date(d).toLocaleDateString("nl-NL", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -188,22 +258,79 @@ export default function AccountPage() {
               <h2 className="text-base font-semibold text-black">Mijn bestellingen</h2>
               <p className="text-xs text-zinc-500 mt-0.5">Overzicht van al je bestellingen</p>
             </div>
-            <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-[#eeebdf] flex items-center justify-center mb-4">
-                <Package width={24} height={24} className="text-zinc-400" strokeWidth={1.5} />
+
+            {ordersLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="animate-spin text-black/30" width={28} height={28} />
               </div>
-              <p className="text-sm font-medium text-black mb-1">Nog geen bestellingen</p>
-              <p className="text-xs text-zinc-500 mb-6 max-w-xs">
-                Je hebt nog geen bestellingen geplaatst. Ontdek onze collectie!
-              </p>
-              <a
-                href="/collection"
-                className="flex items-center gap-2 h-10 px-5 bg-black text-[#eeebdf] rounded-xl text-sm font-medium hover:bg-[#f24f13] transition-colors duration-300"
-              >
-                Bekijk collectie
-                <ChevronRight width={14} height={14} />
-              </a>
-            </div>
+            ) : orders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-[#eeebdf] flex items-center justify-center mb-4">
+                  <Package width={24} height={24} className="text-zinc-400" strokeWidth={1.5} />
+                </div>
+                <p className="text-sm font-medium text-black mb-1">Nog geen bestellingen</p>
+                <p className="text-xs text-zinc-500 mb-6 max-w-xs">
+                  Je hebt nog geen bestellingen geplaatst. Ontdek onze collectie!
+                </p>
+                <a
+                  href="/collection"
+                  className="flex items-center gap-2 h-10 px-5 bg-black text-[#eeebdf] rounded-xl text-sm font-medium hover:bg-[#f24f13] transition-colors duration-300"
+                >
+                  Bekijk collectie
+                  <ChevronRight width={14} height={14} />
+                </a>
+              </div>
+            ) : (
+              <div className="divide-y divide-black/5">
+                {orders.map((order) => (
+                  <div key={order.id} className="p-5">
+                    <button
+                      onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                      className="w-full flex items-center justify-between gap-4 text-left"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-[#eeebdf] flex items-center justify-center shrink-0">
+                          <Package width={18} height={18} className="text-zinc-600" strokeWidth={1.5} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-black font-mono">{order.order_number}</p>
+                          <p className="text-xs text-zinc-500 mt-0.5">{formatDate(order.created_at)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`text-xs px-2.5 py-1 rounded-lg font-medium border ${statusColors[order.status] || "text-zinc-600 bg-zinc-50 border-zinc-200"}`}>
+                          {statusLabels[order.status] || order.status}
+                        </span>
+                        <span className="text-sm font-semibold text-black">€{Number(order.total).toFixed(2)}</span>
+                        <ChevronRight
+                          width={14}
+                          height={14}
+                          className={`text-zinc-400 transition-transform duration-200 ${expandedOrder === order.id ? "rotate-90" : ""}`}
+                        />
+                      </div>
+                    </button>
+
+                    {expandedOrder === order.id && order.order_items && order.order_items.length > 0 && (
+                      <div className="mt-4 pl-14 space-y-2">
+                        {order.order_items.map((item) => (
+                          <div key={item.id} className="flex items-center justify-between bg-zinc-50 rounded-xl px-4 py-3">
+                            <div>
+                              <p className="text-sm font-medium text-black">{item.product_name}</p>
+                              <p className="text-xs text-zinc-500">{item.color_name} — {item.size} — x{item.quantity}</p>
+                            </div>
+                            <p className="text-sm font-medium text-black">€{Number(item.line_total).toFixed(2)}</p>
+                          </div>
+                        ))}
+                        <div className="flex justify-between text-xs text-zinc-500 px-1 pt-1">
+                          <span>Verzending: {Number(order.shipping_cost) === 0 ? "Gratis" : `€${Number(order.shipping_cost).toFixed(2)}`}</span>
+                          <span className="font-semibold text-black">Totaal: €{Number(order.total).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
