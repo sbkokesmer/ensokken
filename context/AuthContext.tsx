@@ -42,17 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const adminStatus = await fetchProfileAndAdmin(session.user.id);
-        setIsAdmin(adminStatus);
-      }
-      setLoading(false);
-    });
-
-    supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
         setSession(session);
         setUser(session?.user ?? null);
@@ -70,6 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       })();
     });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   async function fetchProfileAndAdmin(userId: string): Promise<boolean> {
