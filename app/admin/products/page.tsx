@@ -36,6 +36,7 @@ export default function AdminProducts() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -137,11 +138,18 @@ export default function AdminProducts() {
     fetchAll();
   }
 
-  const filtered = products.filter(
-    (p) =>
+  const filtered = products.filter((p) => {
+    const matchSearch =
       p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase())
-  );
+      p.sku.toLowerCase().includes(search.toLowerCase());
+    const matchCategory =
+      categoryFilter === "all"
+        ? true
+        : categoryFilter === "none"
+        ? !p.category_id
+        : p.category_id === categoryFilter;
+    return matchSearch && matchCategory;
+  });
 
   const primaryImg = (p: Product) => p.product_images?.find((i) => i.is_primary)?.url ?? p.product_images?.[0]?.url ?? "";
 
@@ -162,15 +170,45 @@ export default function AdminProducts() {
       />
 
       <div className="p-8 flex flex-col gap-5">
-        <div className="relative">
-          <Search width={14} height={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
-          <input
-            type="text"
-            placeholder="Zoeken op naam of SKU..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-10 pl-10 pr-4 bg-[#161616] border border-white/[0.06] rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-white/15 transition-colors"
-          />
+        <div className="flex flex-col gap-3">
+          <div className="relative">
+            <Search width={14} height={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+            <input
+              type="text"
+              placeholder="Zoeken op naam of SKU..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 bg-[#161616] border border-white/[0.06] rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-white/15 transition-colors"
+            />
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setCategoryFilter("all")}
+              className={`h-8 px-3 rounded-lg text-xs font-medium transition-colors ${categoryFilter === "all" ? "bg-white text-black" : "bg-[#161616] border border-white/[0.06] text-white/50 hover:text-white hover:border-white/15"}`}
+            >
+              Tümü ({products.length})
+            </button>
+            {categories.map((c) => {
+              const count = products.filter((p) => p.category_id === c.id).length;
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => setCategoryFilter(c.id)}
+                  className={`h-8 px-3 rounded-lg text-xs font-medium transition-colors ${categoryFilter === c.id ? "bg-white text-black" : "bg-[#161616] border border-white/[0.06] text-white/50 hover:text-white hover:border-white/15"}`}
+                >
+                  {c.name} ({count})
+                </button>
+              );
+            })}
+            {products.some((p) => !p.category_id) && (
+              <button
+                onClick={() => setCategoryFilter("none")}
+                className={`h-8 px-3 rounded-lg text-xs font-medium transition-colors ${categoryFilter === "none" ? "bg-white text-black" : "bg-[#161616] border border-white/[0.06] text-white/50 hover:text-white hover:border-white/15"}`}
+              >
+                Zonder categorie ({products.filter((p) => !p.category_id).length})
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="bg-[#161616] border border-white/[0.06] rounded-2xl overflow-hidden">
