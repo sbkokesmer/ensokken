@@ -26,7 +26,6 @@ interface Order {
   user_id: string | null;
   shipping_address: Record<string, string>;
   notes: string;
-  profiles?: { full_name: string; email: string } | null;
   order_items?: OrderItem[];
 }
 
@@ -65,7 +64,7 @@ export default function AdminOrders() {
     setLoading(true);
     const { data } = await supabase
       .from("orders")
-      .select("*, profiles(full_name, email), order_items(*)")
+      .select("*, order_items(*)")
       .order("created_at", { ascending: false });
     setOrders(data ?? []);
     setLoading(false);
@@ -145,8 +144,8 @@ export default function AdminOrders() {
                   <tr key={o.id} className="transition-colors" style={{ borderBottom: "1px solid var(--at-border)" }}>
                     <td className="px-5 py-3 text-sm font-medium" style={{ color: "var(--at-text)" }}>{o.order_number}</td>
                     <td className="px-5 py-3">
-                      <p className="text-sm" style={{ color: "var(--at-text-secondary)" }}>{o.profiles?.full_name || "Gast"}</p>
-                      <p className="text-xs" style={{ color: "var(--at-text-faint)" }}>{o.profiles?.email || "—"}</p>
+                      <p className="text-sm" style={{ color: "var(--at-text-secondary)" }}>{o.shipping_address?.name || "Gast"}</p>
+                      <p className="text-xs" style={{ color: "var(--at-text-faint)" }}>{o.shipping_address?.email || "—"}</p>
                     </td>
                     <td className="px-5 py-3 text-sm font-medium" style={{ color: "var(--at-text)" }}>€{Number(o.total).toFixed(2)}</td>
                     <td className="px-5 py-3">
@@ -224,11 +223,11 @@ export default function AdminOrders() {
             <div className="p-6 flex flex-col gap-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "var(--at-hover-btn)" }}>
-                  <span className="text-sm font-semibold uppercase" style={{ color: "var(--at-text-secondary)" }}>{selectedOrder.profiles?.email?.[0] ?? "G"}</span>
+                  <span className="text-sm font-semibold uppercase" style={{ color: "var(--at-text-secondary)" }}>{(selectedOrder.shipping_address?.name?.[0] ?? "G").toUpperCase()}</span>
                 </div>
                 <div>
-                  <p className="text-sm font-medium" style={{ color: "var(--at-text)" }}>{selectedOrder.profiles?.full_name || "Gast"}</p>
-                  <p className="text-xs" style={{ color: "var(--at-text-dim)" }}>{selectedOrder.profiles?.email || "Geen account"}</p>
+                  <p className="text-sm font-medium" style={{ color: "var(--at-text)" }}>{selectedOrder.shipping_address?.name || "Gast"}</p>
+                  <p className="text-xs" style={{ color: "var(--at-text-dim)" }}>{selectedOrder.shipping_address?.email || "Geen account"}</p>
                 </div>
                 <span className={`ml-auto text-xs px-2.5 py-1 rounded-lg font-medium border ${statusColors[selectedOrder.status]}`}>
                   {statusLabels[selectedOrder.status]}
