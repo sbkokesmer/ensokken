@@ -42,46 +42,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      (async () => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          const adminStatus = await fetchProfileAndAdmin(session.user.id);
-          setIsAdmin(adminStatus);
-        }
-        setLoading(false);
-      })();
-    });
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      (async () => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          const adminStatus = await fetchProfileAndAdmin(session.user.id);
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        const userId = session.user.id;
+        setTimeout(async () => {
+          const adminStatus = await fetchProfileAndAdmin(userId);
           setIsAdmin(adminStatus);
           setLoading(false);
           if (event === "SIGNED_IN" && adminStatus) {
             router.push("/admin");
           }
-        } else {
-          setProfile(null);
-          setIsAdmin(false);
-          setLoading(false);
-        }
-      })();
+        }, 0);
+      } else {
+        setProfile(null);
+        setIsAdmin(false);
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   async function fetchProfileAndAdmin(userId: string): Promise<boolean> {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("id, full_name, email, phone, avatar_url, is_admin")
       .eq("id", userId)
       .maybeSingle();
+    if (error) {
+      console.error("fetchProfileAndAdmin error:", error);
+      return false;
+    }
     if (data) {
       setProfile({
         id: data.id,
