@@ -3,38 +3,12 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { User, Package, LogOut, Save, Loader2, ChevronRight, LayoutDashboard } from "lucide-react";
-
-interface OrderItem {
-  id: string;
-  product_name: string;
-  color_name: string;
-  size: string;
-  quantity: number;
-  unit_price: number;
-  line_total: number;
-}
-
-interface Order {
-  id: string;
-  order_number: string;
-  status: string;
-  subtotal: number;
-  shipping_cost: number;
-  total: number;
-  created_at: string;
-  order_items?: OrderItem[];
-}
-
-const statusLabels: Record<string, string> = {
-  pending: "In afwachting",
-  confirmed: "Bevestigd",
-  processing: "Verwerking",
-  shipped: "Verzonden",
-  delivered: "Bezorgd",
-  cancelled: "Geannuleerd",
-  refunded: "Terugbetaald",
-};
+import {
+  User, Package, LogOut, Save, Loader2, ChevronRight, LayoutDashboard,
+  Truck, ExternalLink,
+} from "lucide-react";
+import { Order, ORDER_STATUS_LABELS, formatDate } from "@/lib/types";
+import OrderTimeline from "@/components/OrderTimeline";
 
 const statusColors: Record<string, string> = {
   pending: "text-yellow-700 bg-yellow-50 border-yellow-200",
@@ -61,9 +35,7 @@ export default function AccountPage() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/");
-    }
+    if (!loading && !user) router.push("/");
   }, [user, loading, router]);
 
   useEffect(() => {
@@ -74,9 +46,7 @@ export default function AccountPage() {
   }, [profile]);
 
   useEffect(() => {
-    if (activeTab === "orders" && user) {
-      fetchOrders();
-    }
+    if (activeTab === "orders" && user) fetchOrders();
   }, [activeTab, user]);
 
   async function fetchOrders() {
@@ -86,16 +56,8 @@ export default function AccountPage() {
       .select("*, order_items(*)")
       .eq("user_id", user!.id)
       .order("created_at", { ascending: false });
-    setOrders(data ?? []);
+    setOrders((data ?? []) as Order[]);
     setOrdersLoading(false);
-  }
-
-  function formatDate(d: string) {
-    return new Date(d).toLocaleDateString("nl-NL", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -104,12 +66,8 @@ export default function AccountPage() {
     setSaveMsg(null);
     const { error } = await updateProfile({ full_name: fullName, phone });
     setSaving(false);
-    if (error) {
-      setSaveMsg("Er is iets misgegaan.");
-    } else {
-      setSaveMsg("Opgeslagen!");
-      setTimeout(() => setSaveMsg(null), 3000);
-    }
+    setSaveMsg(error ? "Er is iets misgegaan." : "Opgeslagen!");
+    setTimeout(() => setSaveMsg(null), 3000);
   }
 
   async function handleSignOut() {
@@ -170,9 +128,7 @@ export default function AccountPage() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? "bg-white text-black shadow-sm"
-                    : "text-zinc-500 hover:text-black"
+                  activeTab === tab.id ? "bg-white text-black shadow-sm" : "text-zinc-500 hover:text-black"
                 }`}
               >
                 <Icon width={15} height={15} />
@@ -191,9 +147,7 @@ export default function AccountPage() {
             <form onSubmit={handleSave} className="p-6 flex flex-col gap-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 mb-1.5">
-                    Volledige naam
-                  </label>
+                  <label className="block text-xs font-medium text-zinc-600 mb-1.5">Volledige naam</label>
                   <input
                     type="text"
                     value={fullName}
@@ -203,9 +157,7 @@ export default function AccountPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 mb-1.5">
-                    E-mailadres
-                  </label>
+                  <label className="block text-xs font-medium text-zinc-600 mb-1.5">E-mailadres</label>
                   <input
                     type="email"
                     value={user.email || ""}
@@ -214,9 +166,7 @@ export default function AccountPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 mb-1.5">
-                    Telefoonnummer
-                  </label>
+                  <label className="block text-xs font-medium text-zinc-600 mb-1.5">Telefoonnummer</label>
                   <input
                     type="tel"
                     value={phone}
@@ -239,11 +189,7 @@ export default function AccountPage() {
                     disabled={saving}
                     className="flex items-center gap-2 h-10 px-5 bg-black text-[#eeebdf] rounded-xl text-sm font-medium hover:bg-[#f24f13] transition-colors duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {saving ? (
-                      <Loader2 width={14} height={14} className="animate-spin" />
-                    ) : (
-                      <Save width={14} height={14} />
-                    )}
+                    {saving ? <Loader2 width={14} height={14} className="animate-spin" /> : <Save width={14} height={14} />}
                     Opslaan
                   </button>
                 </div>
@@ -298,8 +244,14 @@ export default function AccountPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className={`text-xs px-2.5 py-1 rounded-lg font-medium border ${statusColors[order.status] || "text-zinc-600 bg-zinc-50 border-zinc-200"}`}>
-                          {statusLabels[order.status] || order.status}
+                        {order.tracking_number && (
+                          <span className="hidden sm:flex items-center gap-1 text-xs text-zinc-500">
+                            <Truck width={12} height={12} />
+                            <span className="font-mono">{order.tracking_number}</span>
+                          </span>
+                        )}
+                        <span className={`text-xs px-2.5 py-1 rounded-lg font-medium border ${statusColors[order.status]}`}>
+                          {ORDER_STATUS_LABELS[order.status]}
                         </span>
                         <span className="text-sm font-semibold text-black">€{Number(order.total).toFixed(2)}</span>
                         <ChevronRight
@@ -310,20 +262,30 @@ export default function AccountPage() {
                       </div>
                     </button>
 
-                    {expandedOrder === order.id && order.order_items && order.order_items.length > 0 && (
-                      <div className="mt-4 pl-14 space-y-2">
-                        {order.order_items.map((item) => (
-                          <div key={item.id} className="flex items-center justify-between bg-zinc-50 rounded-xl px-4 py-3">
-                            <div>
-                              <p className="text-sm font-medium text-black">{item.product_name}</p>
-                              <p className="text-xs text-zinc-500">{item.color_name} — {item.size} — x{item.quantity}</p>
+                    {expandedOrder === order.id && (
+                      <div className="mt-4 grid lg:grid-cols-2 gap-4">
+                        <OrderTimeline order={order} />
+                        <div className="flex flex-col gap-3">
+                          {order.order_items && order.order_items.length > 0 && (
+                            <div className="bg-white rounded-2xl border border-black/5 p-4">
+                              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3">Producten</p>
+                              <div className="flex flex-col gap-2">
+                                {order.order_items.map((item) => (
+                                  <div key={item.id} className="flex items-center justify-between bg-zinc-50 rounded-xl px-4 py-3">
+                                    <div>
+                                      <p className="text-sm font-medium text-black">{item.product_name}</p>
+                                      <p className="text-xs text-zinc-500">{item.color_name} — {item.size} — ×{item.quantity}</p>
+                                    </div>
+                                    <p className="text-sm font-medium text-black">€{Number(item.line_total).toFixed(2)}</p>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="flex justify-between text-xs text-zinc-500 px-1 pt-3">
+                                <span>Verzending: {Number(order.shipping_cost) === 0 ? "Gratis" : `€${Number(order.shipping_cost).toFixed(2)}`}</span>
+                                <span className="font-semibold text-black">Totaal: €{Number(order.total).toFixed(2)}</span>
+                              </div>
                             </div>
-                            <p className="text-sm font-medium text-black">€{Number(item.line_total).toFixed(2)}</p>
-                          </div>
-                        ))}
-                        <div className="flex justify-between text-xs text-zinc-500 px-1 pt-1">
-                          <span>Verzending: {Number(order.shipping_cost) === 0 ? "Gratis" : `€${Number(order.shipping_cost).toFixed(2)}`}</span>
-                          <span className="font-semibold text-black">Totaal: €{Number(order.total).toFixed(2)}</span>
+                          )}
                         </div>
                       </div>
                     )}

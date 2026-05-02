@@ -37,6 +37,7 @@ export default function Footer() {
                     <h4 className="font-semibold text-black text-sm mb-4">Ondersteuning</h4>
                     <ul className="space-y-3 text-sm text-zinc-500">
                         <li><Link href="/iletisim" className="hover:text-black transition-colors text-left">Contact</Link></li>
+                        <li><Link href="/track" className="hover:text-black transition-colors text-left">Track & Trace</Link></li>
                         <li><button className="hover:text-black transition-colors text-left">Verzending & Retour</button></li>
                         <li><button className="hover:text-black transition-colors text-left">Veelgestelde Vragen</button></li>
                     </ul>
