@@ -52,11 +52,11 @@ export default function ProductClient({ product }: ProductClientProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
-        <div className="lg:col-span-7 flex flex-col gap-6">
-          <div className="aspect-[4/5] bg-[#f4f4f5] rounded-[2rem] relative overflow-hidden group">
+        <div className="lg:col-span-7 flex flex-col gap-4">
+          <div className="relative aspect-square max-h-[560px] mx-auto w-full bg-[#f4f4f5] rounded-[2rem] overflow-hidden group">
             {product.badge && (
               <span
-                className="absolute top-6 left-6 text-xs font-bold px-3 py-1.5 rounded-full z-20 uppercase tracking-wider"
+                className="absolute top-5 left-5 text-xs font-bold px-3 py-1.5 rounded-full z-20 uppercase tracking-wider"
                 style={{
                   background: product.badge === "Nieuw" ? "#17a6a6" : product.badge === "Aanbieding" ? "#f24f13" : product.badge === "Premium" ? "#1a1a1a" : "#6b7280",
                   color: "#fff",
@@ -71,26 +71,26 @@ export default function ProductClient({ product }: ProductClientProps) {
             ></div>
             <img
               src={currentImage || primaryImg}
-              className="w-full h-full object-cover object-center mix-blend-multiply transition-all duration-500 hover:scale-105"
+              className="absolute inset-0 w-full h-full object-contain object-center p-8 md:p-12 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
               alt={product.name}
             />
             <button
               onClick={() => toggleFavorite(product.id)}
-              className="absolute top-6 right-6 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-transform z-20"
+              className="absolute top-5 right-5 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-transform z-20"
             >
               <Heart width={20} height={20} className={isFav ? "fill-[#f24f13] text-[#f24f13]" : "text-zinc-400"} />
             </button>
           </div>
 
           {gallery.length > 0 && (
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-4 gap-3 max-w-[560px] mx-auto w-full">
               {gallery.map((src, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentImage(src)}
-                  className={`aspect-square rounded-xl border-2 overflow-hidden relative ${currentImage === src ? "border-black" : "border-transparent"}`}
+                  className={`aspect-square rounded-xl border-2 overflow-hidden relative bg-[#f4f4f5] ${currentImage === src ? "border-black" : "border-transparent hover:border-black/20"}`}
                 >
-                  <img src={src} className="w-full h-full object-cover" alt="" />
+                  <img src={src} className="w-full h-full object-contain p-2 mix-blend-multiply" alt="" />
                 </button>
               ))}
             </div>
