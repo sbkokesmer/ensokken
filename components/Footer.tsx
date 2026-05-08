@@ -28,7 +28,6 @@ export default function Footer() {
                     <ul className="space-y-3 text-sm text-zinc-500">
                         <li><Link href="/collection" className="hover:text-black transition-colors text-left">Nieuw Binnen</Link></li>
                         <li><Link href="/collection" className="hover:text-black transition-colors text-left">Sokken</Link></li>
-                        <li><Link href="/collection" className="hover:text-black transition-colors text-left">Pakketten</Link></li>
                     </ul>
                 </div>
 
@@ -38,8 +37,6 @@ export default function Footer() {
                     <ul className="space-y-3 text-sm text-zinc-500">
                         <li><Link href="/iletisim" className="hover:text-black transition-colors text-left">Contact</Link></li>
                         <li><Link href="/track" className="hover:text-black transition-colors text-left">Track & Trace</Link></li>
-                        <li><button className="hover:text-black transition-colors text-left">Verzending & Retour</button></li>
-                        <li><button className="hover:text-black transition-colors text-left">Veelgestelde Vragen</button></li>
                     </ul>
                 </div>
 
