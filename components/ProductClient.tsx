@@ -18,7 +18,8 @@ export default function ProductClient({ product }: ProductClientProps) {
   const colors = getProductColors(product);
   const primaryImg = getPrimaryImage(product);
 
-  const [selectedSize, setSelectedSize] = useState("40-43");
+  const sizes = [...new Set((product.product_variants ?? []).map((v) => v.size))];
+  const [selectedSize, setSelectedSize] = useState(sizes[0] ?? "");
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [currentImage, setCurrentImage] = useState<string>("");
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
@@ -136,7 +137,7 @@ export default function ProductClient({ product }: ProductClientProps) {
                   <button className="text-xs text-zinc-500 underline">Maattabel</button>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
-                  {["36-39", "40-43", "44-46"].map((size) => (
+                  {sizes.map((size) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
