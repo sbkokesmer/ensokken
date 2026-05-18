@@ -2,7 +2,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 
 interface Profile {
   id: string;
@@ -39,7 +38,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
-  const router = useRouter();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -51,9 +49,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const adminStatus = await fetchProfileAndAdmin(userId);
           setIsAdmin(adminStatus);
           setLoading(false);
-          if (event === "SIGNED_IN" && adminStatus) {
-            router.push("/admin");
-          }
         }, 0);
       } else {
         setProfile(null);
@@ -116,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function signOut() {
     await supabase.auth.signOut();
-    router.push("/");
+    window.location.href = "/";
   }
 
   async function updateProfile(data: Partial<Profile>) {
