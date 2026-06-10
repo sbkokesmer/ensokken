@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import AdminHeader from "@/components/admin/AdminHeader";
-import { Plus, Pencil, Trash2, Search, Loader2, X, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Loader2, X, ChevronDown, Upload } from "lucide-react";
 
 interface Category { id: string; name: string; }
 interface Product {
@@ -43,6 +43,28 @@ export default function AdminProducts() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
+
+  async function handleUpload(idx: number, file: File) {
+    setUploadingIdx(idx);
+    setFormError(null);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `admin/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("product-images").upload(path, file, {
+      contentType: file.type || "image/jpeg",
+      upsert: false,
+    });
+    if (upErr) {
+      setFormError(`Upload mislukt: ${upErr.message}`);
+      setUploadingIdx(null);
+      return;
+    }
+    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+    const imgs = [...form.images];
+    imgs[idx] = data.publicUrl;
+    setForm({ ...form, images: imgs });
+    setUploadingIdx(null);
+  }
 
   useEffect(() => {
     fetchAll();
@@ -377,7 +399,7 @@ export default function AdminProducts() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-2" style={{ color: "var(--at-text-dim)" }}>Afbeeldingen (URL)</label>
+                <label className="block text-xs font-medium mb-2" style={{ color: "var(--at-text-dim)" }}>Afbeeldingen (URL of upload)</label>
                 <div className="flex flex-col gap-2">
                   {form.images.map((url, i) => (
                     <div key={i} className="flex items-center gap-2">
@@ -385,9 +407,31 @@ export default function AdminProducts() {
                       <input value={url} onChange={(e) => {
                         const imgs = [...form.images]; imgs[i] = e.target.value; setForm({ ...form, images: imgs });
                       }}
-                        placeholder={i === 0 ? "Hoofdafbeelding URL" : `Afbeelding ${i + 1} URL`}
+                        placeholder={i === 0 ? "Hoofdafbeelding URL of upload" : `Afbeelding ${i + 1}`}
                         className="flex-1 h-9 px-3 rounded-xl text-xs focus:outline-none transition-colors"
                         style={{ background: "var(--at-surface-input)", border: "1px solid var(--at-border-input)", color: "var(--at-text)" }} />
+                      <label
+                        className="h-9 px-3 rounded-xl text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
+                        style={{ background: "var(--at-btn-secondary-bg)", color: "var(--at-btn-secondary-text)" }}
+                      >
+                        {uploadingIdx === i ? (
+                          <Loader2 width={13} height={13} className="animate-spin" />
+                        ) : (
+                          <Upload width={13} height={13} />
+                        )}
+                        Upload
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={uploadingIdx !== null}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) handleUpload(i, f);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
                       {url && <img src={url} className="w-9 h-9 rounded-lg object-cover" style={{ background: "var(--at-hover-btn)" }} onError={(e) => (e.currentTarget.style.display = "none")} />}
                     </div>
                   ))}
