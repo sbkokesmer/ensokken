@@ -18,7 +18,9 @@ export async function generateStaticParams() {
     .eq("is_active", true);
 
   if (error) throw new Error(`generateStaticParams products fetch failed: ${error.message}`);
-  return (data ?? []).map((p: { id: string }) => ({ id: p.id }));
+  const ids = (data ?? []).map((p: { id: string }) => ({ id: p.id }));
+  ids.push({ id: "_fallback" });
+  return ids;
 }
 
 export default function ProductPage() {

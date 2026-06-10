@@ -9,12 +9,21 @@ import { Loader2 } from "lucide-react";
 
 export default function ProductPageClient() {
   const params = useParams();
-  const id = params?.id as string;
+  const routeId = params?.id as string | undefined;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    let id = routeId;
+    if (!id || id === "_fallback") {
+      const path = typeof window !== "undefined" ? window.location.pathname : "";
+      const match = path.match(/\/product\/([^\/]+)/);
+      id = match?.[1];
+    }
+    if (!id) {
+      setLoading(false);
+      return;
+    }
     supabase
       .from("products")
       .select("*, product_images(url, is_primary, sort_order), product_variants(id, color_hex, color_name, size, stock_quantity)")
@@ -25,7 +34,7 @@ export default function ProductPageClient() {
         setProduct(data ?? null);
         setLoading(false);
       });
-  }, [id]);
+  }, [routeId]);
 
   if (loading) {
     return (
