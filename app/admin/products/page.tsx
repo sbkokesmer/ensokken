@@ -23,9 +23,10 @@ const emptyForm = {
   sku: "", name: "", description: "", price: "", badge: "", category_id: "", is_active: true,
   images: ["", "", ""],
   variants: [
-    { color_hex: "#f0f0f0", color_name: "Crème", size: "36-39", stock_quantity: 0 },
-    { color_hex: "#f0f0f0", color_name: "Crème", size: "40-43", stock_quantity: 0 },
-    { color_hex: "#f0f0f0", color_name: "Crème", size: "44-46", stock_quantity: 0 },
+    { color_hex: "#f0f0f0", color_name: "Crème", size: "35-38", stock_quantity: 0 },
+    { color_hex: "#f0f0f0", color_name: "Crème", size: "39-42", stock_quantity: 0 },
+    { color_hex: "#f0f0f0", color_name: "Crème", size: "43-46", stock_quantity: 0 },
+    { color_hex: "#f0f0f0", color_name: "Crème", size: "47-50", stock_quantity: 0 },
   ],
 };
 
@@ -456,7 +457,7 @@ export default function AdminProducts() {
                           const vs = [...form.variants]; vs[i] = { ...vs[i], size: e.target.value }; setForm({ ...form, variants: vs });
                         }} className="h-8 px-2 rounded-lg text-xs focus:outline-none appearance-none"
                           style={{ background: "var(--at-surface-input)", border: "1px solid var(--at-border-input)", color: "var(--at-text)" }}>
-                          <option>36-39</option><option>40-43</option><option>44-46</option>
+                          <option>35-38</option><option>39-42</option><option>43-46</option><option>47-50</option>
                         </select>
                         <input type="number" min="0" value={v.stock_quantity} onChange={(e) => {
                           const vs = [...form.variants]; vs[i] = { ...vs[i], stock_quantity: parseInt(e.target.value) || 0 }; setForm({ ...form, variants: vs });
@@ -464,7 +465,7 @@ export default function AdminProducts() {
                           style={{ background: "var(--at-surface-input)", border: "1px solid var(--at-border-input)", color: "var(--at-text)" }} />
                       </div>
                     ))}
-                    <button type="button" onClick={() => setForm({ ...form, variants: [...form.variants, { color_hex: "#f0f0f0", color_name: "Crème", size: "40-43", stock_quantity: 0 }] })}
+                    <button type="button" onClick={() => setForm({ ...form, variants: [...form.variants, { color_hex: "#f0f0f0", color_name: "Crème", size: "39-42", stock_quantity: 0 }] })}
                       className="flex items-center gap-1.5 text-xs transition-colors mt-1" style={{ color: "var(--at-text-muted)" }}>
                       <Plus width={12} height={12} /> Variant toevoegen
                     </button>

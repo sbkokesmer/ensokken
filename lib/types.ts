@@ -89,8 +89,8 @@ export interface OrderHistoryEntry {
   created_at: string;
 }
 
-export const FREE_SHIPPING_THRESHOLD = 50;
-export const SHIPPING_COST = 4.95;
+export const FREE_SHIPPING_THRESHOLD = 25;
+export const SHIPPING_COST = 2.95;
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   pending: "In afwachting",

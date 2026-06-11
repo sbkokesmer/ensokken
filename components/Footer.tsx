@@ -20,14 +20,21 @@ export default function Footer() {
                     <p className="text-zinc-500 text-sm leading-relaxed">
                         Het ontmoetingspunt van Scandinavisch minimalisme en organisch comfort.
                     </p>
+                    <p className="text-zinc-400 text-xs leading-snug">
+                        Vlaardingweg 62, 3044 CK Rotterdam<br />
+                        BTW: NL859447728B01 · KVK: 73300276
+                    </p>
                 </div>
-                
+
                 {/* Col 2: Shop */}
                 <div>
                     <h4 className="font-semibold text-black text-sm mb-4">Winkelen</h4>
                     <ul className="space-y-3 text-sm text-zinc-500">
-                        <li><Link href="/collection" className="hover:text-black transition-colors text-left">Nieuw Binnen</Link></li>
-                        <li><Link href="/collection" className="hover:text-black transition-colors text-left">Sokken</Link></li>
+                        <li><Link href="/collection?category=sokken" className="hover:text-black transition-colors text-left">Sokken</Link></li>
+                        <li><Link href="/collection?category=atletler" className="hover:text-black transition-colors text-left">Atletler</Link></li>
+                        <li><Link href="/collection?category=boxershorts" className="hover:text-black transition-colors text-left">Boxershorts</Link></li>
+                        <li><Link href="/collection?gender=dames" className="hover:text-black transition-colors text-left">Dames</Link></li>
+                        <li><Link href="/collection?gender=heren" className="hover:text-black transition-colors text-left">Heren</Link></li>
                     </ul>
                 </div>
 

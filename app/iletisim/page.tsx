@@ -109,7 +109,7 @@ export default function ContactPage() {
                         </div>
                         <div>
                             <h3 className="text-sm font-semibold text-black mb-1">Hulplijn</h3>
-                            <a href="mailto:support@ensokken.com" className="text-zinc-500 hover:text-black transition-colors text-base relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-black after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left break-all">support@ensokken.com</a>
+                            <a href="mailto:info@ensokken.com" className="text-zinc-500 hover:text-black transition-colors text-base relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-black after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left break-all">info@ensokken.com</a>
                         </div>
                     </div>
 
@@ -120,8 +120,13 @@ export default function ContactPage() {
                         <div>
                             <h3 className="text-sm font-semibold text-black mb-1">Showroom & Magazijn</h3>
                             <p className="text-zinc-500 text-base leading-snug">
-                                Teşvikiye Mah. Valikonağı Cad.<br />
-                                Şişli, Istanbul, Turkije
+                                Vlaardingweg 62<br />
+                                3044 CK Rotterdam<br />
+                                Tel: 010-3216956
+                            </p>
+                            <p className="text-zinc-400 text-xs mt-2 leading-snug">
+                                BTW: NL859447728B01<br />
+                                KVK: 73300276
                             </p>
                         </div>
                     </div>
@@ -261,17 +266,24 @@ export default function ContactPage() {
             </div>
         </div>
 
-        {/* FAQ Teaser */}
+        {/* Shipping & Return Info */}
         <section className="mt-16 lg:mt-24 pt-12 lg:pt-16 border-t border-black/5 animate-in fade-in duration-700 delay-500">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-                <div>
-                    <h3 className="text-lg md:text-xl font-semibold text-black">Vragen over maat of verzending?</h3>
-                    <p className="text-zinc-500 text-sm mt-1">Alle details vind je in onze veelgestelde vragen sectie.</p>
+            <h3 className="text-lg md:text-xl font-semibold text-black mb-6">Verzending & Retour</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white border border-black/5 rounded-2xl p-6">
+                    <h4 className="text-sm font-semibold text-black mb-3">Verzendkosten</h4>
+                    <ul className="text-sm text-zinc-600 space-y-2">
+                        <li>Bestellingen onder € 25 — verzendkosten € 2,95</li>
+                        <li>Bestellingen vanaf € 25 — <span className="font-medium text-black">gratis verzending</span></li>
+                    </ul>
                 </div>
-                <a href="#" className="w-full md:w-auto group flex items-center justify-center gap-2 text-sm font-medium text-black border border-black/10 rounded-full px-6 py-3 bg-white hover:border-[#f24f13] hover:text-[#f24f13] transition-all duration-300 hover:shadow-sm">
-                    Ga naar Helpcentrum
-                    <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </a>
+                <div className="bg-white border border-black/5 rounded-2xl p-6">
+                    <h4 className="text-sm font-semibold text-black mb-3">Retourbeleid</h4>
+                    <p className="text-sm text-zinc-600 leading-relaxed">
+                        Retourkosten zijn voor rekening van de klant. Bij een fout van onze kant nemen wij de
+                        verzendkosten op ons.
+                    </p>
+                </div>
             </div>
         </section>
 

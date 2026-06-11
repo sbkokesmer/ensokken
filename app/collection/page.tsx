@@ -103,10 +103,11 @@ export default function CollectionPage() {
 
           <div className="space-y-4 pt-4 border-t border-black/5">
             <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Maat</p>
-            <div className="grid grid-cols-3 gap-2">
-              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">36-39</button>
-              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">40-43</button>
-              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">44-46</button>
+            <div className="grid grid-cols-2 gap-2">
+              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">35-38</button>
+              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">39-42</button>
+              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">43-46</button>
+              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">47-50</button>
             </div>
           </div>
 
