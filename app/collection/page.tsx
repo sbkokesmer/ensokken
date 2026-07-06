@@ -1,38 +1,96 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { Product, getPrimaryImage, getProductColors, formatPrice } from "@/lib/types";
 import Link from "next/link";
 import { SlidersHorizontal, ChevronDown, Check, ChevronLeft, ChevronRight, Heart, Loader2 } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
 
+interface Category {
+  id: string;
+  name: string;
+}
+
+const PRICE_RANGES = [
+  { key: "0-20", label: "€0 - €20", match: (price: number) => price <= 20 },
+  { key: "20+", label: "€20+", match: (price: number) => price > 20 },
+];
+
 export default function CollectionPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOpen, setSortOpen] = useState(false);
   const [currentSort, setCurrentSort] = useState("Aanbevolen");
+
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedPrices, setSelectedPrices] = useState<string[]>([]);
 
   const { isFavorite, toggleFavorite } = useFavorites();
 
   const itemsPerPage = 20;
 
   useEffect(() => {
-    fetchProducts();
+    fetchData();
   }, []);
 
-  async function fetchProducts() {
-    const { data } = await supabase
-      .from("products")
-      .select("*, product_images(url, is_primary, sort_order), product_variants(id, color_hex, color_name, size, stock_quantity)")
-      .eq("is_active", true)
-      .order("created_at", { ascending: true });
-    setProducts(data ?? []);
+  async function fetchData() {
+    const [productsRes, categoriesRes] = await Promise.all([
+      supabase
+        .from("products")
+        .select("*, product_images(url, is_primary, sort_order), product_variants(id, color_hex, color_name, size, stock_quantity)")
+        .eq("is_active", true)
+        .order("created_at", { ascending: true }),
+      supabase.from("categories").select("id, name").order("name"),
+    ]);
+    setProducts(productsRes.data ?? []);
+    setCategories(categoriesRes.data ?? []);
     setLoading(false);
   }
 
-  const sorted = [...products].sort((a, b) => {
+  const sizeOptions = useMemo(() => {
+    const sizes = new Set<string>();
+    for (const p of products) for (const v of p.product_variants ?? []) sizes.add(v.size);
+    return Array.from(sizes).sort((a, b) => parseInt(a) - parseInt(b));
+  }, [products]);
+
+  const colorOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const p of products) for (const v of p.product_variants ?? []) {
+      if (!seen.has(v.color_hex)) seen.set(v.color_hex, v.color_name);
+    }
+    return Array.from(seen.entries()).map(([hex, name]) => ({ hex, name }));
+  }, [products]);
+
+  const toggle = (list: string[], setList: (v: string[]) => void, value: string) => {
+    setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
+    setCurrentPage(1);
+  };
+
+  const clearFilters = () => {
+    setSelectedCategories([]);
+    setSelectedColors([]);
+    setSelectedSizes([]);
+    setSelectedPrices([]);
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters =
+    selectedCategories.length > 0 || selectedColors.length > 0 || selectedSizes.length > 0 || selectedPrices.length > 0;
+
+  const filtered = products.filter((p) => {
+    if (selectedCategories.length > 0 && (!p.category_id || !selectedCategories.includes(p.category_id))) return false;
+    if (selectedColors.length > 0 && !p.product_variants?.some((v) => selectedColors.includes(v.color_hex))) return false;
+    if (selectedSizes.length > 0 && !p.product_variants?.some((v) => selectedSizes.includes(v.size))) return false;
+    if (selectedPrices.length > 0 && !PRICE_RANGES.some((r) => selectedPrices.includes(r.key) && r.match(p.price))) return false;
+    return true;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
     if (currentSort === "Prijs: Laag naar Hoog") return a.price - b.price;
     if (currentSort === "Prijs: Hoog naar Laag") return b.price - a.price;
     if (currentSort === "Nieuwste") return new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime();
@@ -57,7 +115,9 @@ export default function CollectionPage() {
             <h2 className="font-semibold text-lg tracking-tight flex items-center gap-2">
               <SlidersHorizontal width={16} height={16} /> Filters
             </h2>
-            <button className="text-xs text-zinc-500 hover:text-black underline">Wissen</button>
+            {hasActiveFilters && (
+              <button onClick={clearFilters} className="text-xs text-zinc-500 hover:text-black underline">Wissen</button>
+            )}
           </div>
 
           <div className="space-y-4">
@@ -67,67 +127,97 @@ export default function CollectionPage() {
             </div>
             <div className="space-y-3">
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" className="peer sr-only" defaultChecked />
-                <div className="w-4 h-4 rounded border border-zinc-300 bg-white flex items-center justify-center peer-checked:bg-black peer-checked:border-black transition-all">
-                  <Check className="hidden peer-checked:block text-white" width={10} height={10} />
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={selectedCategories.length === 0}
+                  onChange={() => { setSelectedCategories([]); setCurrentPage(1); }}
+                />
+                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${selectedCategories.length === 0 ? "bg-black border-black" : "border-zinc-300 bg-white"}`}>
+                  {selectedCategories.length === 0 && <Check className="text-white" width={10} height={10} />}
                 </div>
                 <span className="text-sm text-zinc-600 group-hover:text-black transition-colors">Alle Sokken</span>
                 <span className="ml-auto text-xs text-zinc-400">{products.length}</span>
               </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" className="peer sr-only" />
-                <div className="w-4 h-4 rounded border border-zinc-300 bg-white flex items-center justify-center peer-checked:bg-black peer-checked:border-black transition-all">
-                  <Check className="hidden peer-checked:block text-white" width={10} height={10} />
-                </div>
-                <span className="text-sm text-zinc-600 group-hover:text-black transition-colors">Heren</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" className="peer sr-only" />
-                <div className="w-4 h-4 rounded border border-zinc-300 bg-white flex items-center justify-center peer-checked:bg-black peer-checked:border-black transition-all">
-                  <Check className="hidden peer-checked:block text-white" width={10} height={10} />
-                </div>
-                <span className="text-sm text-zinc-600 group-hover:text-black transition-colors">Dames</span>
-              </label>
+              {categories.map((c) => {
+                const checked = selectedCategories.includes(c.id);
+                return (
+                  <label key={c.id} className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={checked}
+                      onChange={() => toggle(selectedCategories, setSelectedCategories, c.id)}
+                    />
+                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${checked ? "bg-black border-black" : "border-zinc-300 bg-white"}`}>
+                      {checked && <Check className="text-white" width={10} height={10} />}
+                    </div>
+                    <span className="text-sm text-zinc-600 group-hover:text-black transition-colors">{c.name}</span>
+                    <span className="ml-auto text-xs text-zinc-400">{products.filter((p) => p.category_id === c.id).length}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
 
           <div className="space-y-4 pt-4 border-t border-black/5">
             <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Kleur</p>
             <div className="flex flex-wrap gap-3">
-              <button className="w-6 h-6 rounded-full bg-black border border-black/10 ring-2 ring-transparent hover:ring-black/20 focus:ring-black/40 transition-all" title="Zwart"></button>
-              <button className="w-6 h-6 rounded-full bg-white border border-zinc-200 ring-2 ring-transparent hover:ring-black/20 focus:ring-black/40 transition-all" title="Wit"></button>
-              <button className="w-6 h-6 rounded-full bg-[#f24f13] border border-black/5 ring-2 ring-transparent hover:ring-black/20 focus:ring-black/40 transition-all" title="Oranje"></button>
-              <button className="w-6 h-6 rounded-full bg-[#17a6a6] border border-black/5 ring-2 ring-transparent hover:ring-black/20 focus:ring-black/40 transition-all" title="Turkoois"></button>
+              {colorOptions.map((c) => {
+                const selected = selectedColors.includes(c.hex);
+                return (
+                  <button
+                    key={c.hex}
+                    onClick={() => toggle(selectedColors, setSelectedColors, c.hex)}
+                    className={`w-6 h-6 rounded-full border border-black/10 ring-2 transition-all ${selected ? "ring-black/60" : "ring-transparent hover:ring-black/20"}`}
+                    style={{ backgroundColor: c.hex }}
+                    title={c.name}
+                    aria-pressed={selected}
+                  ></button>
+                );
+              })}
             </div>
           </div>
 
           <div className="space-y-4 pt-4 border-t border-black/5">
             <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Maat</p>
             <div className="grid grid-cols-2 gap-2">
-              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">35-38</button>
-              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">39-42</button>
-              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">43-46</button>
-              <button className="px-2 py-1.5 rounded-lg border border-black/5 bg-white text-xs font-medium hover:border-black transition-colors">47-50</button>
+              {sizeOptions.map((size) => {
+                const selected = selectedSizes.includes(size);
+                return (
+                  <button
+                    key={size}
+                    onClick={() => toggle(selectedSizes, setSelectedSizes, size)}
+                    className={`px-2 py-1.5 rounded-lg border text-xs font-medium transition-colors ${selected ? "border-black bg-black text-white" : "border-black/5 bg-white hover:border-black"}`}
+                    aria-pressed={selected}
+                  >
+                    {size}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           <div className="space-y-4 pt-4 border-t border-black/5">
             <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Prijs</p>
             <div className="space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" className="peer sr-only" />
-                <div className="w-4 h-4 rounded border border-zinc-300 bg-white flex items-center justify-center peer-checked:bg-black peer-checked:border-black transition-all">
-                  <Check className="hidden peer-checked:block text-white" width={10} height={10} />
-                </div>
-                <span className="text-sm text-zinc-600 group-hover:text-black transition-colors">€0 - €20</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" className="peer sr-only" />
-                <div className="w-4 h-4 rounded border border-zinc-300 bg-white flex items-center justify-center peer-checked:bg-black peer-checked:border-black transition-all">
-                  <Check className="hidden peer-checked:block text-white" width={10} height={10} />
-                </div>
-                <span className="text-sm text-zinc-600 group-hover:text-black transition-colors">€20+</span>
-              </label>
+              {PRICE_RANGES.map((range) => {
+                const checked = selectedPrices.includes(range.key);
+                return (
+                  <label key={range.key} className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={checked}
+                      onChange={() => toggle(selectedPrices, setSelectedPrices, range.key)}
+                    />
+                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${checked ? "bg-black border-black" : "border-zinc-300 bg-white"}`}>
+                      {checked && <Check className="text-white" width={10} height={10} />}
+                    </div>
+                    <span className="text-sm text-zinc-600 group-hover:text-black transition-colors">{range.label}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
         </aside>
@@ -136,7 +226,9 @@ export default function CollectionPage() {
           <header className="flex flex-col sm:flex-row items-center justify-between mb-8 pb-4 border-b border-black/5 gap-4">
             <div>
               <h1 className="text-2xl font-semibold text-black tracking-tight">Collectie</h1>
-              <span className="text-sm text-zinc-500 mt-1 block">Totaal {products.length} Producten</span>
+              <span className="text-sm text-zinc-500 mt-1 block">
+                {hasActiveFilters ? `${sorted.length} van ${products.length} producten` : `Totaal ${products.length} Producten`}
+              </span>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-zinc-500">Sorteren:</span>
@@ -154,7 +246,7 @@ export default function CollectionPage() {
                     {["Aanbevolen", "Nieuwste", "Prijs: Laag naar Hoog", "Prijs: Hoog naar Laag"].map((sort) => (
                       <button
                         key={sort}
-                        onClick={() => { setCurrentSort(sort); setSortOpen(false); }}
+                        onClick={() => { setCurrentSort(sort); setSortOpen(false); setCurrentPage(1); }}
                         className="text-left px-3 py-2 text-sm text-zinc-600 hover:text-black hover:bg-zinc-50 rounded-lg transition-colors font-medium"
                       >
                         {sort}
@@ -170,6 +262,16 @@ export default function CollectionPage() {
             <div className="flex items-center justify-center py-24 gap-3 text-zinc-400">
               <Loader2 width={20} height={20} className="animate-spin" />
               <span className="text-sm">Laden...</span>
+            </div>
+          ) : sorted.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
+              <p className="text-zinc-500 text-sm">Geen producten gevonden met deze filters.</p>
+              <button
+                onClick={clearFilters}
+                className="text-sm font-medium underline text-black hover:text-zinc-600 transition-colors"
+              >
+                Filters wissen
+              </button>
             </div>
           ) : (
             <>
